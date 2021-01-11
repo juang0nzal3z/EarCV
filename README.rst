@@ -26,14 +26,14 @@ Image only containing a single ear::
 Output:
 
 .. image:: ./test/OUT/01_Proofs/test_img_1_proof.png
-	:height: 100px
-	:width: 200 px
+	:height: 2949 px
+	:width: 2944 px
 	:scale: 10 %
 	:alt: alternate text
 	:align: right
 
 .. image:: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1.png
-	:height: 100px
+	:height: 100 px
 	:width: 200 px
 	:scale: 10 %
 	:alt: alternate text
