@@ -21,9 +21,6 @@ def qr_scan(qr_img, qr_window_size, overlap, debug):
 	"""
 	Scans image for QR code and extracts information using pyzbar's decode function.
 
-	This tool allows the user to convert any 1D or 2D measurements from pixels to a know unit by providing a refference in the image.
-	The refference must be a solid color square known dimensions. (Optional) Any square within a color checker may be used.
-
 	Parameters
 	----------
 	qr_img : array_like

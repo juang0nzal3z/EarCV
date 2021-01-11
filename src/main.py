@@ -340,8 +340,8 @@ def main():
 	filtered, ear_number = find_ears.filter(filename, bkgrnd, min_area, max_area, aspect_ratio, solidity)		# Run the filter module
 	log.info("[EARS]--{}--Found {} Ear(s) before clean up".format(filename, ear_number))
 
-
-	cov = find_ears.calculate_area_cov(filtered)																#Calculate area coeficient of variance
+	cov = None
+	cov = find_ears.calculate_area_cov(filtered, cov)																#Calculate area coeficient of variance
 	log.info("[CLNUP]--{}--Area Coefficent of Variance: {}".format(filename, cov))
 
 
@@ -352,15 +352,6 @@ def main():
 		log.warning("[CLNUP]--{}--COV above 0.35 has triggered default ear clean-up module".format(filename))
 		max_cov = 0.35
 		max_iterations = 10
-
-	elif args.ear_cleanup is not None:
-		log.info("[CLNUP]--{}--Ear clean-up module with custom settings".format(filename))
-		max_cov = args.ear_cleanup[0]	
-		max_iterations = args.ear_cleanup[1]
-	else:
-		log.info("[CLNUP]--{}--Area COV under threshold. Ear clean-up module turned off.".format(filename))
-
-	if cov > 0.35 or args.ear_cleanup is not None:
 		i = 1
 		while cov > max_cov  and i <= max_iterations:
 			log.info("[CLNUP]--{}--Ear clean-up module: Iterate up to {} times or until area COV < {}. Current COV: {} and iteration {}".format(filename, max_iterations, max_cov, round(cov, 3), i))
@@ -369,6 +360,21 @@ def main():
 			cov = find_ears.calculate_area_cov(filtered)																# Calculate area coeficient of variance			
 			i = i+1
 		log.info("[CLNUP]--{}--Ear clean-up module finished. Final Area COV--{}".format(filename, cov))
+
+	elif args.ear_cleanup is not None:
+		log.info("[CLNUP]--{}--Ear clean-up module with custom settings".format(filename))
+		max_cov = args.ear_cleanup[0]	
+		max_iterations = args.ear_cleanup[1]
+		i = 1
+		while cov > max_cov  and i <= max_iterations:
+			log.info("[CLNUP]--{}--Ear clean-up module: Iterate up to {} times or until area COV < {}. Current COV: {} and iteration {}".format(filename, max_iterations, max_cov, round(cov, 3), i))
+			mask = cv2.morphologyEx(filtered, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (i,i)), iterations=i)
+			filtered, ear_number = find_ears.filter(filename, mask, min_area, max_area, aspect_ratio, solidity)		# Run the filter module
+			cov = find_ears.calculate_area_cov(filtered)																# Calculate area coeficient of variance			
+			i = i+1
+		log.info("[CLNUP]--{}--Ear clean-up module finished. Final Area COV--{}".format(filename, cov))
+	else:
+		log.info("[CLNUP]--{}--Area COV under threshold. Ear clean-up module turned off.".format(filename))
 
 	ears = img.copy()
 	ears[filtered == 0] = 0
@@ -442,6 +448,8 @@ def main():
 	img_list.append(ppm_proof)
 	
 	montages = utility.build_montages(img_list, (axis, int(axis*tall_ratio)), (3, 1))
+	dim = (ears_proof.shape[1], int(axis*tall_ratio))
+	montages[0] = cv2.resize(montages[0], dim, interpolation = cv2.INTER_AREA)
 
 	ears_proof = cv2.vconcat([montages[0], ears_proof])
 
@@ -537,7 +545,7 @@ def main():
 					if e.errno != errno.EEXIST:
 						raise			
 			destin = "{}02_Ear_ROIs/{}_ear_{}".format(out, filename, n) + ".png"
-			log.info("[EAR]--{}--Ear#{}: ROI saved to: {}".format(filename, n, destin))			
+			log.info("[EAR]--{}--Ear #{}: ROI saved to: {}".format(filename, n, destin))			
 			cv2.imwrite(destin, ear)
 
 		if args.debug is True:
@@ -665,7 +673,7 @@ def main():
 				except OSError as e:
 					if e.errno != errno.EEXIST:
 						raise			
-			destin = "{}03_Ear_Proofs/{}_ear_{}".format(out, filename, n) + ".png"
+			destin = "{}03_Ear_Proofs/{}_ear_{}_proof".format(out, filename, n) + ".png"
 			log.info("[EAR]--{}--Ear #{}: ROI saved to: {}".format(filename, n, destin))			
 			cv2.imwrite(destin, ear)
 

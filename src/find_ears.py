@@ -66,7 +66,7 @@ def filter(filename, binary, min_area, max_area, aspect_ratio, solidity):
 	return mask, i
 
 
-def calculate_area_cov(filtered):
+def calculate_area_cov(filtered, cov):
 	cnts = cv2.findContours(filtered, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE); cnts = cnts[0] if len(cnts) == 2 else cnts[1]	# Calculate features of filtered ears
 	areas = [cv2.contourArea(c) for c in cnts]
 	if len(areas) > 1:
