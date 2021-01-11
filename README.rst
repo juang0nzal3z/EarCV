@@ -25,7 +25,7 @@ Image only containing a single ear::
 
 Output:
 
-.. image:: ./test/OUT/01_Proofs/test_img_1_proof.png
+.. image:: ./test/OUT/01_Proofs/test_img_1_proof.jpg
 	:height: 2944 px
 	:width: 2949 px
 	:scale: 1 %
