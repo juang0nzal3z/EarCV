@@ -25,14 +25,14 @@ Image only containing a single ear::
 
 Output:
 
-.. image:: ./test/OUT/01_Proofs/test_img_1_proof.jpg
+.. image:: ./test/OUT/01_Proofs/test_img_1_proof.png
 	:height: 2944 px
 	:width: 2949 px
 	:scale: 1 %
 	:alt: alternate text
 	:align: right
 
-.. image:: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1.png
+.. image:: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1_proof1.png
 	:height: 100 px
 	:width: 200 px
 	:scale: 10 %
@@ -46,7 +46,7 @@ Now lets run the same image with default cob and shank segmentation::
 
 Output:
 
-.. image:: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1_proof.png
+.. image:: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1_proof2.png
 	:height: 100px
 	:width: 200 px
 	:scale: 10 %

@@ -416,3 +416,35 @@
 2021-01-11 14:49:35,608 — INFO — [EAR]--test_img_1--Ear #1: ROI saved to: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1_proof.png
 2021-01-11 14:49:37,727 — INFO — [EAR]--test_img_1--Ear #1: Saved features to: ./test/OUT/features.csv
 2021-01-11 14:49:37,728 — INFO — [EAR]--test_img_1--Collected all ear features.
+2021-01-11 16:38:57,838 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 16:38:57,871 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 16:38:57,996 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 16:38:57,996 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 16:38:58,002 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 16:38:58,023 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 16:38:58,028 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 16:38:59,663 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 16:38:59,671 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 16:38:59,676 — INFO — [CLNUP]--test_img_1--Area Coefficent of Variance: None
+2021-01-11 16:38:59,676 — INFO — [CLNUP]--test_img_1--Cannot calculate Coefficent of Variance on single ear
+2021-01-11 16:38:59,911 — INFO — [EARS]--test_img_1--Ear #1: Min Area: 6.051% Aspect Ratio: 0.22 Solidity score: 0.952
+2021-01-11 16:38:59,914 — INFO — [EARS]--test_img_1--Found 1 Ear(s) after clean up
+2021-01-11 16:39:04,074 — INFO — [EARS]--test_img_1--Proof saved to: ./test/OUT/01_Proofs/test_img_1_proof.png
+2021-01-11 16:39:04,460 — INFO — [SILK]--test_img_1--Cleaning up silks...
+2021-01-11 16:39:04,509 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.867
+2021-01-11 16:39:04,509 — WARNING — [SILK]--test_img_1--Ear #1: Convexity under 0.87 has triggered default ear clean-up module
+2021-01-11 16:39:04,509 — INFO — [SILK]--test_img_1--Ear #1: Min delta convexity: 0.04, Max interations: 10
+2021-01-11 16:39:04,511 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.892, delta convexity: 0.026, iteration: 1
+2021-01-11 16:39:04,513 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.905, delta convexity: 0.039, iteration: 2
+2021-01-11 16:39:04,516 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.915, delta convexity: 0.049, iteration: 3
+2021-01-11 16:39:04,528 — INFO — [EAR]--test_img_1--Ear #1: Checking ear orientation...
+2021-01-11 16:39:04,556 — INFO — [EAR]--test_img_1--Ear #1: Ear orientation is fine.
+2021-01-11 16:39:04,556 — INFO — [EAR]--test_img_1--Ear #1: ROI saved to: ./test/OUT/02_Ear_ROIs/test_img_1_ear_1.png
+2021-01-11 16:39:04,584 — INFO — [EAR]--test_img_1--Extracting features from 1 ears...
+2021-01-11 16:39:04,585 — INFO — [EAR]--test_img_1--Ear #1: Extracting basic morphological features...
+2021-01-11 16:39:04,800 — INFO — [EAR]--test_img_1--Ear #1: Done extracting basic morphological features
+2021-01-11 16:39:06,049 — INFO — [EAR]--test_img_1--Ear #1: Ear tip segmentation turned off
+2021-01-11 16:39:06,049 — INFO — [EAR]--test_img_1--Ear #1: Ear bottom segmentation turned off
+2021-01-11 16:39:06,056 — INFO — [EAR]--test_img_1--Ear #1: Ear proof saved to: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1_proof.png
+2021-01-11 16:39:08,200 — INFO — [EAR]--test_img_1--Ear #1: Saved features to: ./test/OUT/features.csv
+2021-01-11 16:39:08,201 — INFO — [EAR]--test_img_1--Collected all ear features.
