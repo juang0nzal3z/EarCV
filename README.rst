@@ -167,8 +167,10 @@ Output: Ear features
 
 Anytime you use this tool you will get the following features:
 
-* Filename:					Name of image file or QR code if qr code module turned on
-* Ear Number:				If image conatins multiple ears, each ear gets an ear number.
+* Filename:					
+	Name of image file or QR code if qr code module turned on
+* Ear Number:				
+	If image conatins multiple ears, each ear gets an ear number.
 * Ear_Area:					The area of the entire ear. 
 * Ear_Box_Area:				Area of the smallest bounding box containing the ear.
 * Ear_Box_Length:			Length of the smallest bounding box containing the ear.
