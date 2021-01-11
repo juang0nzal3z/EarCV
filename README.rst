@@ -21,15 +21,15 @@ Assuming you are in the root folder of this repo, lets run the simplest case -- 
 Output:
 
 .. image:: ./test/OUT/01_Proofs/test_img_1_proof.png
-    :width: 100px
-    :align: center
-    :height: 100px
+   	:height: 100px
+  	:width: 200 px
+  	:scale: 50 %
     :alt: alternate text
 
 .. image:: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1.png
-    :width: 100px
-    :align: center
-    :height: 100px
+   	:height: 100px
+  	:width: 200 px
+  	:scale: 50 %
     :alt: alternate text
 
 Now lets run the same image with default cob and shank segmentation::
@@ -39,9 +39,9 @@ Now lets run the same image with default cob and shank segmentation::
 Output:
 
 .. image:: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1_proof.png
-    :width: 100px
-    :align: center
-    :height: 100px
+   	:height: 100px
+  	:width: 200 px
+  	:scale: 50 %
     :alt: alternate text
 
 Let's run an image with all of the features using default settings::
@@ -51,9 +51,9 @@ Let's run an image with all of the features using default settings::
 Output:
 
 .. image:: ./test/OUT/01_Proofs/test_img_2_proof.png
-    :width: 100px
-    :align: center
-    :height: 100px
+   	:height: 100px
+  	:width: 200 px
+  	:scale: 50 %
     :alt: alternate text
 
 -----
@@ -75,7 +75,7 @@ Just download this repo and make sure you have all the dependencies installed on
 ^^^^^^^^^^^^^
 Main pipeline
 ^^^^^^^^^^^^^
-This tool uses any standard image format (.jpg, .jpeg, .png, or .tiff). We will asuume you are running this from the main ''EarCV/'' folder contianing this repo. Let's use images within the ''/test/'' folder as examples. To start, here is key info:
+This tool uses any standard image format (.jpg, .jpeg, .png, or .tiff). We will asuume you are running this from the main ''EarCV/'' folder contianing this repo. Let's use images within the ''/test/'' folder as examples. To start, the main function does the following:
 
 * Segments ears photographed against a uniform background
 	- Background can be any color insofar it contrasts well with the ears.
@@ -90,7 +90,9 @@ This tool uses any standard image format (.jpg, .jpeg, .png, or .tiff). We will 
 	- (in development) Estimates Kernel Row Number
 	- (in development) Predicts USDA quality Grade
  
+^^^^^
 Input
+^^^^^
 
 	Required:
 
@@ -110,8 +112,10 @@ For complete usage documentation run::
 
 	python ./src/main.py -h
 
+^^^^^
 Output
-	The output structure is as follows::
+^^^^^
+The output structure is as follows::
 
 	./OUT/
 	|--- 01_Proofs/
@@ -122,16 +126,16 @@ Output
 	|--- color_check.csv
 	|--- features.csv
 
-Proofs
-    Use proofs to minotor performance. ''01_Proofs'' documents qr code extraction, color correction, pixels per metric calculation, and ear segmentation. ''02_Ear_ROIs'' contains the region of interest for each segmented ear. ''03_Ear_Proofs'' conatins a proof for each individual ear showing various feature extraction results. 
-EarCV.log
+* Proofs
+	Use proofs to minotor performance. ''01_Proofs'' documents qr code extraction, color correction, pixels per metric calculation, and ear segmentation. ''02_Ear_ROIs'' contains the region of interest for each segmented ear. ''03_Ear_Proofs'' conatins a proof for each individual ear showing various feature extraction results. 
+* EarCV.log
 	Evey time you run the script, the terminal prints a log of what is happening under the hood.
-qrcode.csv
+* qrcode.csv
 	File with the image name and the corresponding information found in QR code.
-color_check.csv
-    File with color correction preformance metrics based on root mean squared differences in color.
-features.csv
-    File with the ear features as columns and ears as rows.
+* color_check.csv
+	File with color correction preformance metrics based on root mean squared differences in color.
+* features.csv
+	File with the ear features as columns and ears as rows.
 
 ^^^^^^^^^^^^^^^^
 Optional modules
@@ -142,7 +146,6 @@ Optional modules
 * Color correction
 	- Standizes colors across any number of images to make robust color comparisons.
 	- Performs color correction on images using a color checker.
-
 * Pixels per metric conversion
 	- Want your morphemetric measurements in inches? centimeters?
 	- Converts pixel measurements into any unit of length or area.
@@ -152,53 +155,12 @@ Optional modules
 QR code extraction
 ^^^^^^^^^^^^^^^^^^
 
-#.. literalinclude:: filename
-#    :linenos:
-#    :language: python
-#    :lines: 1, 3-5
-#    :start-after: 3
-#    :end-before: 5
-
-Scans image for QR code and extracts information using pyzbar's decode function.
-
-Parameters
-----------
-qr_img : array_like
-	Valid file path to image to be scanned for QR code. Accepted formats: 'tiff', 'jpeg', 'bmp', 'png'.
-
-
-qr_window_size: float
-	Optional. Dimension of square window size to scan over original image.
-
-overlap: float
-	Optional. Amount of overlap between windows. Must be a decimal between 0 & 1. The higher the number the more overlap between windows and higher scanning resolution but longer analysis.
-
-debug: bool
-	If true, print images.
-
-Returns
--------
-QRcodeType
-QRcodeData
-QRcodeRect
-qr_count
-qr_proof
-
-References
-----------
-
-Thank you zbar! http://zbar.sourceforge.net/index.html
-
-Examples
---------
-
-Example 1:
-
-python qr.py W201432.JPG None None False
-
-Example 2:
-
-python qr.py W201432.JPG 2000 0.01 True
+.. literalinclude:: ./src/qr.py
+    :linenos:
+    :language: python
+    :lines: 1, 3-5
+    :start-after: 3
+    :end-before: 5
 
 ^^^^^^^^^^^^^^^^^^^^
 Output: Ear features

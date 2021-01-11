@@ -674,8 +674,8 @@ def main():
 					if e.errno != errno.EEXIST:
 						raise			
 			destin = "{}03_Ear_Proofs/{}_ear_{}_proof".format(out, filename, n) + ".png"
-			log.info("[EAR]--{}--Ear #{}: ROI saved to: {}".format(filename, n, destin))			
-			cv2.imwrite(destin, ear)
+			log.info("[EAR]--{}--Ear #{}: Ear proof saved to: {}".format(filename, n, destin))			
+			cv2.imwrite(destin, ear_proof)
 
 		if args.no_proof is False or arg.debug is True:
 			cv2.namedWindow('[SILK CLEAN UP]', cv2.WINDOW_NORMAL)
