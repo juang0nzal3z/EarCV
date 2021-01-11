@@ -26,8 +26,8 @@ Image only containing a single ear::
 Output:
 
 .. image:: ./test/OUT/01_Proofs/test_img_1_proof.png
-	:height: 2949 px
-	:width: 2944 px
+	:height: 2944 px
+	:width: 2949 px
 	:scale: 1 %
 	:alt: alternate text
 	:align: right
