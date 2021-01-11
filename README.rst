@@ -28,7 +28,7 @@ Output:
 .. image:: ./test/OUT/01_Proofs/test_img_1_proof.png
 	:height: 2949 px
 	:width: 2944 px
-	:scale: 10 %
+	:scale: 1 %
 	:alt: alternate text
 	:align: right
 
