@@ -1,0 +1,316 @@
+2021-01-11 11:24:20,919 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:24:34,183 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:24:34,184 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:24:34,843 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:24:34,844 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:24:34,998 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:24:35,023 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:24:35,027 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:24:37,480 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:24:37,679 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:29:55,583 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:29:55,584 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:29:55,705 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:29:55,705 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:29:55,710 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:29:55,733 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:29:55,738 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:29:57,477 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:29:57,488 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:30:19,637 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:30:19,638 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:30:19,764 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:30:19,764 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:30:19,768 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:30:19,791 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:30:19,796 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:30:21,487 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:30:21,496 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:36:44,772 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:36:44,772 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:36:44,902 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:36:44,902 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:36:44,907 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:36:44,928 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:36:44,933 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:36:46,654 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:36:46,665 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:37:32,429 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:37:32,430 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:37:32,552 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:37:32,553 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:37:32,557 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:37:32,578 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:37:32,582 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:37:34,378 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:37:34,387 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:37:34,392 — INFO — [CLNUP]--test_img_1--Area Coefficent of Variance: None
+2021-01-11 11:37:34,392 — INFO — [CLNUP]--test_img_1--Cannot calculate Coefficent of Variance on single ear
+2021-01-11 11:39:53,291 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:39:53,292 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:39:53,412 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:39:53,413 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:39:53,417 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:39:53,439 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:39:53,444 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:39:55,235 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:39:55,244 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:39:55,249 — INFO — [CLNUP]--test_img_1--Area Coefficent of Variance: None
+2021-01-11 11:39:55,249 — INFO — [CLNUP]--test_img_1--Cannot calculate Coefficent of Variance on single ear
+2021-01-11 11:39:55,754 — INFO — [EARS]--test_img_1--Ear #1: Min Area: 6.051% Aspect Ratio: 0.22 Solidity score: 0.952
+2021-01-11 11:39:55,757 — INFO — [EARS]--test_img_1--Found 1 Ear(s) after clean up
+2021-01-11 11:41:16,706 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:41:16,707 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:41:16,830 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:41:16,830 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:41:16,835 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:41:16,859 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:41:16,864 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:41:18,799 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:41:18,808 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:41:18,813 — INFO — [CLNUP]--test_img_1--Area Coefficent of Variance: None
+2021-01-11 11:41:18,813 — INFO — [CLNUP]--test_img_1--Cannot calculate Coefficent of Variance on single ear
+2021-01-11 11:41:19,054 — INFO — [EARS]--test_img_1--Ear #1: Min Area: 6.051% Aspect Ratio: 0.22 Solidity score: 0.952
+2021-01-11 11:41:19,056 — INFO — [EARS]--test_img_1--Found 1 Ear(s) after clean up
+2021-01-11 11:42:20,087 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:42:20,088 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:42:20,213 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:42:20,213 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:42:20,218 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:42:20,241 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:42:20,246 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:42:21,927 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:42:21,937 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:42:21,942 — INFO — [CLNUP]--test_img_1--Area Coefficent of Variance: None
+2021-01-11 11:42:21,942 — INFO — [CLNUP]--test_img_1--Cannot calculate Coefficent of Variance on single ear
+2021-01-11 11:42:22,196 — INFO — [EARS]--test_img_1--Ear #1: Min Area: 6.051% Aspect Ratio: 0.22 Solidity score: 0.952
+2021-01-11 11:42:22,198 — INFO — [EARS]--test_img_1--Found 1 Ear(s) after clean up
+2021-01-11 11:47:08,499 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:47:08,500 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:47:08,626 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:47:08,627 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:47:08,631 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:47:08,653 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:47:08,657 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:47:10,439 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:47:10,448 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:47:10,452 — INFO — [CLNUP]--test_img_1--Area Coefficent of Variance: None
+2021-01-11 11:47:10,452 — INFO — [CLNUP]--test_img_1--Cannot calculate Coefficent of Variance on single ear
+2021-01-11 11:47:10,690 — INFO — [EARS]--test_img_1--Ear #1: Min Area: 6.051% Aspect Ratio: 0.22 Solidity score: 0.952
+2021-01-11 11:47:10,691 — INFO — [EARS]--test_img_1--Found 1 Ear(s) after clean up
+2021-01-11 11:47:30,991 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:47:30,991 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:47:31,121 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:47:31,121 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:47:31,126 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:47:31,152 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:47:31,156 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:47:33,029 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:47:33,038 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:47:33,043 — INFO — [CLNUP]--test_img_1--Area Coefficent of Variance: None
+2021-01-11 11:47:33,043 — INFO — [CLNUP]--test_img_1--Cannot calculate Coefficent of Variance on single ear
+2021-01-11 11:47:33,336 — INFO — [EARS]--test_img_1--Ear #1: Min Area: 6.051% Aspect Ratio: 0.22 Solidity score: 0.952
+2021-01-11 11:47:33,338 — INFO — [EARS]--test_img_1--Found 1 Ear(s) after clean up
+2021-01-11 11:50:33,630 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:50:33,631 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:50:33,757 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:50:33,758 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:50:33,763 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:50:33,788 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:50:33,793 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:50:35,455 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:50:35,464 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:50:35,468 — INFO — [CLNUP]--test_img_1--Area Coefficent of Variance: None
+2021-01-11 11:50:35,468 — INFO — [CLNUP]--test_img_1--Cannot calculate Coefficent of Variance on single ear
+2021-01-11 11:50:35,705 — INFO — [EARS]--test_img_1--Ear #1: Min Area: 6.051% Aspect Ratio: 0.22 Solidity score: 0.952
+2021-01-11 11:50:35,706 — INFO — [EARS]--test_img_1--Found 1 Ear(s) after clean up
+2021-01-11 11:51:09,315 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:51:09,315 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:51:09,440 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:51:09,440 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:51:09,444 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:51:09,467 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:51:09,471 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:51:11,130 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:51:11,139 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:51:11,144 — INFO — [CLNUP]--test_img_1--Area Coefficent of Variance: None
+2021-01-11 11:51:11,144 — INFO — [CLNUP]--test_img_1--Cannot calculate Coefficent of Variance on single ear
+2021-01-11 11:51:11,379 — INFO — [EARS]--test_img_1--Ear #1: Min Area: 6.051% Aspect Ratio: 0.22 Solidity score: 0.952
+2021-01-11 11:51:11,380 — INFO — [EARS]--test_img_1--Found 1 Ear(s) after clean up
+2021-01-11 11:51:57,989 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:51:57,989 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:51:58,112 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:51:58,112 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:51:58,117 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:51:58,139 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:51:58,143 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:51:59,850 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:51:59,860 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:51:59,864 — INFO — [CLNUP]--test_img_1--Area Coefficent of Variance: None
+2021-01-11 11:51:59,865 — INFO — [CLNUP]--test_img_1--Cannot calculate Coefficent of Variance on single ear
+2021-01-11 11:52:00,111 — INFO — [EARS]--test_img_1--Ear #1: Min Area: 6.051% Aspect Ratio: 0.22 Solidity score: 0.952
+2021-01-11 11:52:00,112 — INFO — [EARS]--test_img_1--Found 1 Ear(s) after clean up
+2021-01-11 11:52:04,248 — INFO — [EARS]--test_img_1--Proof saved to: ./test/OUT/01_Proofs/test_img_1_proof.png
+2021-01-11 11:52:04,743 — INFO — [SILK]--test_img_1--Cleaning up silks...
+2021-01-11 11:52:05,023 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.867
+2021-01-11 11:52:05,023 — WARNING — [SILK]--test_img_1--Ear #1: Convexity under 0.87 has triggered default ear clean-up module
+2021-01-11 11:52:05,023 — INFO — [SILK]--test_img_1--Ear #1: Min delta convexity: 0.04, Max interations: 10
+2021-01-11 11:52:05,187 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.892, delta convexity: 0.026, iteration: 1
+2021-01-11 11:52:05,207 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.905, delta convexity: 0.039, iteration: 2
+2021-01-11 11:52:05,209 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.915, delta convexity: 0.049, iteration: 3
+2021-01-11 11:52:05,220 — INFO — [EAR]--test_img_1--Ear #1: Checking ear orientation...
+2021-01-11 11:52:05,332 — INFO — [EAR]--test_img_1--Ear #1: Ear orientation is fine.
+2021-01-11 11:52:05,333 — INFO — [EAR]--test_img_1--Ear#1: ROI saved to: ./test/OUT/02_Ear_ROIs/test_img_1_ear_1.png
+2021-01-11 11:52:05,358 — INFO — [EAR]--test_img_1--Extracting features from 1 ears...
+2021-01-11 11:52:05,359 — INFO — [EAR]--test_img_1--Ear #1: Extracting basic morphological features...
+2021-01-11 11:52:05,765 — INFO — [EAR]--test_img_1--Ear #1: Done extracting basic morphological features
+2021-01-11 11:52:07,099 — INFO — [EAR]--test_img_1--Ear #1: Ear tip segmentation turned off
+2021-01-11 11:52:07,100 — INFO — [EAR]--test_img_1--Ear #1: Ear bottom segmentation turned off
+2021-01-11 11:52:07,107 — INFO — [EAR]--test_img_1--Ear #1: ROI saved to: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1.png
+2021-01-11 11:52:09,223 — INFO — [EAR]--test_img_1--Ear #1: Saved features to: ./test/OUT/features.csv
+2021-01-11 11:52:09,223 — INFO — [EAR]--test_img_1--Collected all ear features.
+2021-01-11 11:52:30,063 — INFO — Namespace(bottom=None, color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=None)
+2021-01-11 11:52:30,064 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 11:52:30,202 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 11:52:30,202 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 11:52:30,207 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 11:52:30,231 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 11:52:30,235 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 11:52:31,959 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 11:52:31,968 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 11:52:31,972 — INFO — [CLNUP]--test_img_1--Area Coefficent of Variance: None
+2021-01-11 11:52:31,973 — INFO — [CLNUP]--test_img_1--Cannot calculate Coefficent of Variance on single ear
+2021-01-11 11:52:32,217 — INFO — [EARS]--test_img_1--Ear #1: Min Area: 6.051% Aspect Ratio: 0.22 Solidity score: 0.952
+2021-01-11 11:52:32,219 — INFO — [EARS]--test_img_1--Found 1 Ear(s) after clean up
+2021-01-11 11:52:36,286 — INFO — [EARS]--test_img_1--Proof saved to: ./test/OUT/01_Proofs/test_img_1_proof.png
+2021-01-11 11:52:36,646 — INFO — [SILK]--test_img_1--Cleaning up silks...
+2021-01-11 11:52:36,694 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.867
+2021-01-11 11:52:36,695 — WARNING — [SILK]--test_img_1--Ear #1: Convexity under 0.87 has triggered default ear clean-up module
+2021-01-11 11:52:36,695 — INFO — [SILK]--test_img_1--Ear #1: Min delta convexity: 0.04, Max interations: 10
+2021-01-11 11:52:36,697 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.892, delta convexity: 0.026, iteration: 1
+2021-01-11 11:52:36,699 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.905, delta convexity: 0.039, iteration: 2
+2021-01-11 11:52:36,701 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.915, delta convexity: 0.049, iteration: 3
+2021-01-11 11:52:36,711 — INFO — [EAR]--test_img_1--Ear #1: Checking ear orientation...
+2021-01-11 11:52:36,739 — INFO — [EAR]--test_img_1--Ear #1: Ear orientation is fine.
+2021-01-11 11:52:36,739 — INFO — [EAR]--test_img_1--Ear#1: ROI saved to: ./test/OUT/02_Ear_ROIs/test_img_1_ear_1.png
+2021-01-11 11:52:36,767 — INFO — [EAR]--test_img_1--Extracting features from 1 ears...
+2021-01-11 11:52:36,768 — INFO — [EAR]--test_img_1--Ear #1: Extracting basic morphological features...
+2021-01-11 11:52:36,982 — INFO — [EAR]--test_img_1--Ear #1: Done extracting basic morphological features
+2021-01-11 11:52:38,137 — INFO — [EAR]--test_img_1--Ear #1: Ear tip segmentation turned off
+2021-01-11 11:52:38,137 — INFO — [EAR]--test_img_1--Ear #1: Ear bottom segmentation turned off
+2021-01-11 11:52:38,143 — INFO — [EAR]--test_img_1--Ear #1: ROI saved to: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1.png
+2021-01-11 11:52:40,213 — INFO — [EAR]--test_img_1--Ear #1: Saved features to: ./test/OUT/features.csv
+2021-01-11 11:52:40,213 — INFO — [EAR]--test_img_1--Collected all ear features.
+2021-01-11 12:13:55,719 — INFO — Namespace(bottom=[0.0, 0.0, 0.0, 0.0], color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_1.JPG', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=None, qr_window_size_overlap=None, qrcode=False, rename=True, silk_cleanup=None, tip=[0.0, 0.0, 0.0, 0.0])
+2021-01-11 12:13:55,720 — INFO — [START]--test_img_1--Starting analysis pipeline...
+2021-01-11 12:13:55,850 — INFO — [START]--test_img_1--Image is 1968 by 2944 pixels
+2021-01-11 12:13:55,850 — INFO — [QR]--test_img_1--QR module turned off
+2021-01-11 12:13:55,855 — INFO — [COLOR]--test_img_1--Color correction module turned off
+2021-01-11 12:13:55,877 — INFO — [PPM]--test_img_1--Pixels per Metric module turned off
+2021-01-11 12:13:55,882 — INFO — [EARS]--test_img_1--Looking for ears...
+2021-01-11 12:13:57,582 — INFO — [EARS]--test_img_1--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 12:13:57,592 — INFO — [EARS]--test_img_1--Found 1 Ear(s) before clean up
+2021-01-11 12:13:57,598 — INFO — [CLNUP]--test_img_1--Area Coefficent of Variance: None
+2021-01-11 12:13:57,599 — INFO — [CLNUP]--test_img_1--Cannot calculate Coefficent of Variance on single ear
+2021-01-11 12:13:57,880 — INFO — [EARS]--test_img_1--Ear #1: Min Area: 6.051% Aspect Ratio: 0.22 Solidity score: 0.952
+2021-01-11 12:13:57,882 — INFO — [EARS]--test_img_1--Found 1 Ear(s) after clean up
+2021-01-11 12:14:02,094 — INFO — [EARS]--test_img_1--Proof saved to: ./test/OUT/01_Proofs/test_img_1_proof.png
+2021-01-11 12:14:02,451 — INFO — [SILK]--test_img_1--Cleaning up silks...
+2021-01-11 12:14:02,499 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.867
+2021-01-11 12:14:02,499 — WARNING — [SILK]--test_img_1--Ear #1: Convexity under 0.87 has triggered default ear clean-up module
+2021-01-11 12:14:02,499 — INFO — [SILK]--test_img_1--Ear #1: Min delta convexity: 0.04, Max interations: 10
+2021-01-11 12:14:02,501 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.892, delta convexity: 0.026, iteration: 1
+2021-01-11 12:14:02,503 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.905, delta convexity: 0.039, iteration: 2
+2021-01-11 12:14:02,505 — INFO — [SILK]--test_img_1--Ear #1: Convexity: 0.915, delta convexity: 0.049, iteration: 3
+2021-01-11 12:14:02,514 — INFO — [EAR]--test_img_1--Ear #1: Checking ear orientation...
+2021-01-11 12:14:02,539 — INFO — [EAR]--test_img_1--Ear #1: Ear orientation is fine.
+2021-01-11 12:14:02,540 — INFO — [EAR]--test_img_1--Ear #1: ROI saved to: ./test/OUT/02_Ear_ROIs/test_img_1_ear_1.png
+2021-01-11 12:14:02,564 — INFO — [EAR]--test_img_1--Extracting features from 1 ears...
+2021-01-11 12:14:02,565 — INFO — [EAR]--test_img_1--Ear #1: Extracting basic morphological features...
+2021-01-11 12:14:02,758 — INFO — [EAR]--test_img_1--Ear #1: Done extracting basic morphological features
+2021-01-11 12:14:03,899 — INFO — [EAR]--test_img_1--Ear #1: Segmenting ear tip with default settings...
+2021-01-11 12:14:04,205 — INFO — [EAR]--test_img_1--Ear #1: Segmenting ear bottom with default settings...
+2021-01-11 12:14:04,461 — INFO — [EAR]--test_img_1--Ear #1: Extracting kernel features...
+2021-01-11 12:14:06,365 — INFO — [EAR]--test_img_1--Ear #1: Done extracting kernel features
+2021-01-11 12:14:06,395 — INFO — [EAR]--test_img_1--Ear #1: ROI saved to: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1_proof.png
+2021-01-11 12:14:08,496 — INFO — [EAR]--test_img_1--Ear #1: Saved features to: ./test/OUT/features.csv
+2021-01-11 12:14:08,496 — INFO — [EAR]--test_img_1--Collected all ear features.
+2021-01-11 12:36:59,872 — INFO — Namespace(bottom=[0.0, 0.0, 0.0, 0.0], color_checker=['./test/IN/clrchr.png'], debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_2.png', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=[10.0], qr_window_size_overlap=None, qrcode=True, rename=True, silk_cleanup=None, tip=[0.0, 0.0, 0.0, 0.0])
+2021-01-11 12:36:59,926 — INFO — [START]--test_img_2--Starting analysis pipeline...
+2021-01-11 12:37:00,866 — INFO — [START]--test_img_2--Image is 2624 by 3936 pixels
+2021-01-11 12:37:00,866 — INFO — [QR]--test_img_2--Starting QR code extraction module...
+2021-01-11 12:37:01,803 — INFO — [QR]--test_img_2--Found QRCODE: W201881 on the 1th iteration
+2021-01-11 12:37:01,848 — INFO — [QR]--W201881--Renamed with QRCODE info: W201881
+2021-01-11 12:37:01,850 — INFO — [QR]--W201881--Saved filename and QRcode info to: ./test/OUT/QRcodes.csv
+2021-01-11 12:37:01,850 — INFO — [COLOR]--W201881--Starting color correction module...
+2021-01-11 12:37:58,503 — INFO — Namespace(bottom=[0.0, 0.0, 0.0, 0.0], color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_2.png', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=[10.0], qr_window_size_overlap=None, qrcode=True, rename=True, silk_cleanup=None, tip=[0.0, 0.0, 0.0, 0.0])
+2021-01-11 12:40:28,384 — INFO — Namespace(bottom=[0.0, 0.0, 0.0, 0.0], color_checker=None, debug=False, ear_cleanup=None, ear_filter=None, image='./test/IN/test_img_2.png', no_proof=False, no_save=False, outdir='./test/OUT/', pixelspermetric=[10.0], qr_window_size_overlap=None, qrcode=True, rename=False, silk_cleanup=None, tip=[0.0, 0.0, 0.0, 0.0])
+2021-01-11 12:40:28,385 — INFO — [START]--test_img_2--Starting analysis pipeline...
+2021-01-11 12:40:29,253 — INFO — [START]--test_img_2--Image is 2624 by 3936 pixels
+2021-01-11 12:40:29,253 — INFO — [QR]--test_img_2--Starting QR code extraction module...
+2021-01-11 12:40:30,126 — INFO — [QR]--test_img_2--Found QRCODE: W201881 on the 1th iteration
+2021-01-11 12:40:30,128 — INFO — [QR]--test_img_2--Saved filename and QRcode info to: ./test/OUT/QRcodes.csv
+2021-01-11 12:40:30,128 — INFO — [COLOR]--test_img_2--Color correction module turned off
+2021-01-11 12:40:30,164 — INFO — [PPM]--test_img_2--Calculating pixels per metric...
+2021-01-11 12:40:30,165 — INFO — [PPM]--test_img_2--Looking for solid color square to calculate pixels per metric...
+2021-01-11 12:40:30,393 — INFO — [PPM]--test_img_2--Found 8.6 pixels per metric
+2021-01-11 12:40:30,394 — INFO — [PPM]--test_img_2--Saved pixels per metric to: ./test/OUT/pixelspermetric.csv
+2021-01-11 12:40:30,394 — INFO — [EARS]--test_img_2--Looking for ears...
+2021-01-11 12:40:34,491 — INFO — [EARS]--test_img_2--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < 0.6, Solidity < 0.983
+2021-01-11 12:40:34,522 — INFO — [EARS]--test_img_2--Found 3 Ear(s) before clean up
+2021-01-11 12:40:34,532 — INFO — [CLNUP]--test_img_2--Area Coefficent of Variance: 0.16589630218623944
+2021-01-11 12:40:34,532 — INFO — [CLNUP]--test_img_2--Area COV under threshold. Ear clean-up module turned off.
+2021-01-11 12:40:34,947 — INFO — [EARS]--test_img_2--Ear #1: Min Area: 2.252% Aspect Ratio: 0.3 Solidity score: 0.903
+2021-01-11 12:40:34,953 — INFO — [EARS]--test_img_2--Ear #2: Min Area: 3.094% Aspect Ratio: 0.25 Solidity score: 0.913
+2021-01-11 12:40:34,959 — INFO — [EARS]--test_img_2--Ear #3: Min Area: 2.494% Aspect Ratio: 0.26 Solidity score: 0.901
+2021-01-11 12:40:34,961 — INFO — [EARS]--test_img_2--Found 3 Ear(s) after clean up
+2021-01-11 12:40:40,276 — INFO — [EARS]--test_img_2--Proof saved to: ./test/OUT/01_Proofs/test_img_2_proof.png
+2021-01-11 12:40:41,102 — INFO — [SILK]--test_img_2--Cleaning up silks...
+2021-01-11 12:40:41,149 — INFO — [SILK]--test_img_2--Ear #1: Convexity: 0.636
+2021-01-11 12:40:41,149 — WARNING — [SILK]--test_img_2--Ear #1: Convexity under 0.87 has triggered default ear clean-up module
+2021-01-11 12:40:41,149 — INFO — [SILK]--test_img_2--Ear #1: Min delta convexity: 0.04, Max interations: 10
+2021-01-11 12:40:41,152 — INFO — [SILK]--test_img_2--Ear #1: Convexity: 0.78, delta convexity: 0.144, iteration: 1
+2021-01-11 12:40:41,162 — INFO — [EAR]--test_img_2--Ear #1: Checking ear orientation...
+2021-01-11 12:40:41,182 — INFO — [EAR]--test_img_2--Ear #1: Ear orientation is fine.
+2021-01-11 12:40:41,182 — INFO — [EAR]--test_img_2--Ear #1: ROI saved to: ./test/OUT/02_Ear_ROIs/test_img_2_ear_1.png
+2021-01-11 12:40:41,252 — INFO — [SILK]--test_img_2--Ear #2: Convexity: 0.693
+2021-01-11 12:40:41,252 — WARNING — [SILK]--test_img_2--Ear #2: Convexity under 0.87 has triggered default ear clean-up module
+2021-01-11 12:40:41,252 — INFO — [SILK]--test_img_2--Ear #2: Min delta convexity: 0.04, Max interations: 10
+2021-01-11 12:40:41,254 — INFO — [SILK]--test_img_2--Ear #2: Convexity: 0.738, delta convexity: 0.044, iteration: 1
+2021-01-11 12:40:41,263 — INFO — [EAR]--test_img_2--Ear #2: Checking ear orientation...
+2021-01-11 12:40:41,287 — INFO — [EAR]--test_img_2--Ear #2: Ear orientation is fine.
+2021-01-11 12:40:41,288 — INFO — [EAR]--test_img_2--Ear #2: ROI saved to: ./test/OUT/02_Ear_ROIs/test_img_2_ear_2.png
+2021-01-11 12:40:41,347 — INFO — [SILK]--test_img_2--Ear #3: Convexity: 0.702
+2021-01-11 12:40:41,348 — WARNING — [SILK]--test_img_2--Ear #3: Convexity under 0.87 has triggered default ear clean-up module
+2021-01-11 12:40:41,348 — INFO — [SILK]--test_img_2--Ear #3: Min delta convexity: 0.04, Max interations: 10
+2021-01-11 12:40:41,350 — INFO — [SILK]--test_img_2--Ear #3: Convexity: 0.741, delta convexity: 0.039, iteration: 1
+2021-01-11 12:40:41,352 — INFO — [SILK]--test_img_2--Ear #3: Convexity: 0.772, delta convexity: 0.07, iteration: 2
+2021-01-11 12:40:41,361 — INFO — [EAR]--test_img_2--Ear #3: Checking ear orientation...
+2021-01-11 12:40:41,388 — INFO — [EAR]--test_img_2--Ear #3: Ear orientation is fine.
+2021-01-11 12:40:41,388 — INFO — [EAR]--test_img_2--Ear #3: ROI saved to: ./test/OUT/02_Ear_ROIs/test_img_2_ear_3.png
+2021-01-11 12:40:41,409 — INFO — [EAR]--test_img_2--Extracting features from 3 ears...
+2021-01-11 12:40:41,409 — INFO — [EAR]--test_img_2--Ear #1: Extracting basic morphological features...
+2021-01-11 12:40:41,560 — INFO — [EAR]--test_img_2--Ear #1: Done extracting basic morphological features
+2021-01-11 12:40:42,799 — INFO — [EAR]--test_img_2--Ear #1: Segmenting ear tip with default settings...
+2021-01-11 12:40:43,025 — INFO — [EAR]--test_img_2--Ear #1: Segmenting ear bottom with default settings...
+2021-01-11 12:40:43,239 — INFO — [EAR]--test_img_2--Ear #1: Extracting kernel features...
+2021-01-11 12:40:44,593 — INFO — [EAR]--test_img_2--Ear #1: Done extracting kernel features
+2021-01-11 12:40:44,620 — INFO — [EAR]--test_img_2--Ear #1: ROI saved to: ./test/OUT/03_Ear_Proofs/test_img_2_ear_1_proof.png
+2021-01-11 12:40:46,751 — INFO — [EAR]--test_img_2--Ear #1: Saved features to: ./test/OUT/features.csv
+2021-01-11 12:40:46,752 — INFO — [EAR]--test_img_2--Ear #2: Extracting basic morphological features...
+2021-01-11 12:40:46,966 — INFO — [EAR]--test_img_2--Ear #2: Done extracting basic morphological features
+2021-01-11 12:40:48,724 — INFO — [EAR]--test_img_2--Ear #2: Segmenting ear tip with default settings...
+2021-01-11 12:40:48,980 — INFO — [EAR]--test_img_2--Ear #2: Segmenting ear bottom with default settings...
+2021-01-11 12:40:49,324 — INFO — [EAR]--test_img_2--Ear #2: Extracting kernel features...
+2021-01-11 12:40:51,527 — INFO — [EAR]--test_img_2--Ear #2: Done extracting kernel features
+2021-01-11 12:40:51,547 — INFO — [EAR]--test_img_2--Ear #2: ROI saved to: ./test/OUT/03_Ear_Proofs/test_img_2_ear_2_proof.png
+2021-01-11 12:40:53,698 — INFO — [EAR]--test_img_2--Ear #2: Saved features to: ./test/OUT/features.csv
+2021-01-11 12:40:53,698 — INFO — [EAR]--test_img_2--Ear #3: Extracting basic morphological features...
+2021-01-11 12:40:53,873 — INFO — [EAR]--test_img_2--Ear #3: Done extracting basic morphological features
+2021-01-11 12:40:55,013 — INFO — [EAR]--test_img_2--Ear #3: Segmenting ear tip with default settings...
+2021-01-11 12:40:55,220 — INFO — [EAR]--test_img_2--Ear #3: Segmenting ear bottom with default settings...
+2021-01-11 12:40:55,436 — INFO — [EAR]--test_img_2--Ear #3: Extracting kernel features...
+2021-01-11 12:40:57,116 — INFO — [EAR]--test_img_2--Ear #3: Done extracting kernel features
+2021-01-11 12:40:57,133 — INFO — [EAR]--test_img_2--Ear #3: ROI saved to: ./test/OUT/03_Ear_Proofs/test_img_2_ear_3_proof.png
+2021-01-11 12:41:01,550 — INFO — [EAR]--test_img_2--Ear #3: Saved features to: ./test/OUT/features.csv
+2021-01-11 12:41:01,550 — INFO — [EAR]--test_img_2--Collected all ear features.
