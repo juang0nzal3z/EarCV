@@ -4,62 +4,11 @@
 EarCV
 =====
 
---------------------------------------------------------
-A python-based tool for automated maize ear phenotyping.
---------------------------------------------------------
+-------------------------------------------------------
+A python-based tool for automated maize ear phenotyping
+-------------------------------------------------------
 
-This tool allows the user to rapidly extract features from images containing maize ears against a uniform background. It was designed with the intention of facilitating analysis of thousands of images with a single command prompt. In the end, this tool creates a .csv with features for each ear found in the input image(s) and proof images to monitor tool performance. The application has optional modules on top of a default pipeline:
-
-* QR.py 
-	- 
-	
-* Clrchk.py 
-* Ppm.py - 
-* Find_ears.py - Segments ears in the input image.
-* Ear_features.py - Segments kernel from cob and shank, and measures ear features.
-
-
-^^^^^^^^^^^^^^^^
-Optional modules
-^^^^^^^^^^^^^^^^
-* QR code extraction
-	- Helps you keep track of who is what in what image in your experiment.
-	- Scans image for QR code and returns found information.
-* Color correction
-	- Standize colors across any number of images to make robust color comparisons.
-	- Performs color correction on images using a color checker.
-
-* Pixels per metric conversion
-	- Want your morphemetric measurements in inches? centimeters? Easiliy convert pixel measurements into any unit of length or area.
-	- Calculates the pixels per metric using a solid color square in the input image of known dimensions.
-
-^^^^^^^^^^^^^
-Main pipeline
-^^^^^^^^^^^^^
-* Segment ears photographed against a uniform background
-	- Background can be any color insofar it contrasts well with the ears.
-	- Algorithm can take any number of ears, in any configuration or arrangment.
-	- Ears may touch slightly in the image.
-	- Ears may have silk and other debri.
-
-* For each ear:
-	- Extract basic morphological features
-	- Segment cob and shank from kernels
-	- Extract kernel features
-	- (in development) Estimate Kernel Row Number
-	- (in development) Predict USDA quality Grade
-
-------------
-Installation & Dependencies
-------------
-
-Just download this repo and make sure you have all the dependencies installed on your python environment of choice. This tool uses the folowing packages:
-
-* OpenCV 2
-* numpy
-* scipy
-* pyzbar (optional, QR code module)
-* plantcv (optional, Color correction module)
+This tool allows the user to rapidly extract features from images containing maize ears against a uniform background. It was designed with the intention of facilitating analysis of thousands of images with a single command prompt. As output, this tool creates a .csv with features for each ear found in the input image(s) and prints several proofs to monitor tool performance.
 
 -----------
 Quick Start
@@ -71,13 +20,13 @@ Assuming you are in the root folder of this repo, lets run the simplest case -- 
 
 Output:
 
-.. image:: ./Users/mongo/Documents/OneDrive_University_of_Florida/PMCB/marcio/5.EAR_CV/10_EarCV_Final/EarCV/test/OUT/01_Proofs/test_img_1_proof.png
+.. image:: ./test/OUT/01_Proofs/test_img_1_proof.png
     :width: 200px
     :align: center
     :height: 100px
     :alt: alternate text
 
-.. image:: /Users/mongo/Documents/OneDrive_University_of_Florida/PMCB/marcio/5.EAR_CV/10_EarCV_Final/EarCV/test/OUT/03_Ear_Proofs/test_img_1_ear_1.png
+.. image:: ./test/OUT/03_Ear_Proofs/test_img_1_ear_1.png
     :width: 200px
     :align: center
     :height: 100px
@@ -89,7 +38,7 @@ Now lets run the same image with default cob and shank segmentation::
 
 Output:
 
-.. image:: /Users/mongo/Documents/OneDrive_University_of_Florida/PMCB/marcio/5.EAR_CV/10_EarCV_Final/EarCV/test/OUT/03_Ear_Proofs/test_img_1_ear_1_proof.png
+.. image:: ./EarCV/test/OUT/03_Ear_Proofs/test_img_1_ear_1_proof.png
     :width: 200px
     :align: center
     :height: 100px
@@ -101,7 +50,7 @@ Let's run an image with all of the features using default settings::
 
 Output:
 
-.. image:: ./Users/mongo/Documents/OneDrive_University_of_Florida/PMCB/marcio/5.EAR_CV/10_EarCV_Final/EarCV/test/OUT/01_Proofs/test_img_2_proof.png
+.. image:: ./test/OUT/01_Proofs/test_img_2_proof.png
     :width: 200px
     :align: center
     :height: 100px
@@ -110,18 +59,21 @@ Output:
 -----
 Usage
 -----
-
-This tool uses any standard image format (.jpg, .jpeg, .png, or .tiff). We will asuume you are running this from the main ''EarCV/'' folder contianing this repo. Let's use images within the ''/test/'' folder as examples. To start, here is key info
+ 
+ This tool uses any standard image format (.jpg, .jpeg, .png, or .tiff). We will asuume you are running this from the main ''EarCV/'' folder contianing this repo. Let's use images within the ''/test/'' folder as examples. To start, here is key info:
 
     Required:
 
-    -i, --image         Path to input image file, required. Accepted formats: 'tiff', 'jpeg', 'bmp', 'png'
+    -i, --image         Path to input image file, required. Accepted formats: 'tiff', 'jpeg', 'bmp', 'png'.
     
     Optional:
 
-    -o, --OUTDIR        Provide directory to saves proofs, logfile, and output CSVs. Default: Will save in current directory if not provided.
+    -o, --OUTDIR        Provide path to directory to save proofs, logfile, and output CSVs. Default: Will save in current directory if not provided.
+
     -ns, --no_save      Default saves proofs and output CSVs. Raise flag to stop saving.
+
     -np, --no_proof     Default prints proofs on screen. Raise flag to stop printing proofs.
+
     -D, --debug         Raise flag to print intermediate images throughout analysis. Useful for troubleshooting.
 
 For complete usage documentation run::
@@ -135,9 +87,64 @@ The output structure is as follows::
 	|--- 02_Ear_ROIs/
 	|--- 03_Ear_Proofs/
 	|--- EarCV.log
+	|--- qrcode.csv
+	|--- color_check.csv
 	|--- features.csv
 
-Evey time you run the script, the terminal will print a log of what is happening under the hood. The log is always saved as ''EarCV.log'' within the output folder.
+
+Proofs
+    Use proofs to minotor performance. ''01_Proofs'' documents qr code extraction, color correction, pixels per metric calculation, and ear segmentation. ''02_Ear_ROIs'' contains the region of interest for each segmented ear. ''03_Ear_Proofs'' conatins a proof for each individual ear showing various feature extraction results. 
+EarCV.log
+	Evey time you run the script, the terminal prints a log of what is happening under the hood.
+qrcode.csv
+	File with the file name and the corresponding information found in QR code.
+color_check.csv
+    File with color correction preformance metrics based on root mean squared differences in color.
+features.csv
+    File with the ear features as columns and ears as rows.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Installation & Dependencies
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Just download this repo and make sure you have all the dependencies installed on your python environment of choice. This tool uses the folowing packages:
+
+* OpenCV 2
+* numpy
+* scipy
+* pyzbar (optional, QR code module)
+* plantcv (optional, Color correction module)
+
+^^^^^^^^^^^^^^^^
+Optional modules
+^^^^^^^^^^^^^^^^
+* QR code extraction
+	- Helps you keep track of who is what in what image in your experiment.
+	- Scans image for QR code and returns found information.
+* Color correction
+	- Standizes colors across any number of images to make robust color comparisons.
+	- Performs color correction on images using a color checker.
+
+* Pixels per metric conversion
+	- Want your morphemetric measurements in inches? centimeters?
+	- Converts pixel measurements into any unit of length or area.
+	- Calculates the pixels per metric using a solid color square in the input image of known dimensions.
+
+^^^^^^^^^^^^^
+Main pipeline
+^^^^^^^^^^^^^
+* Segments ears photographed against a uniform background
+	- Background can be any color insofar it contrasts well with the ears.
+	- Algorithm can take any number of ears, in any configuration or arrangment.
+	- Ears may touch slightly in the image.
+	- Ears may have silk and other debri.
+
+* For each ear:
+	- Extracts basic morphological features
+	- Segments cob and shank from kernels
+	- Extracts kernel features
+	- (in development) Estimates Kernel Row Number
+	- (in development) Predicts USDA quality Grade
 
 ^^^^^^^^^^^^^^^^^^
 QR code extraction
@@ -190,9 +197,6 @@ python qr.py W201432.JPG None None False
 Example 2:
 
 python qr.py W201432.JPG 2000 0.01 True
-
-
-
 
 ^^^^^^^^^^^^^^^^^^^^
 Output: Ear features
