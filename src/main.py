@@ -228,7 +228,7 @@ def main():
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	
 	tar_check = None
-	
+
 	if args.color_checker != "None" and args.color_checker != "":
 		
 		reff_fullpath, reff_root, reff_filename, reff_ext = utility.img_parse(args.color_checker)		# Parse provided path for reference color checker image
@@ -463,7 +463,7 @@ def main():
 
 	ears_proof = cv2.vconcat([montages[0], ears_proof])
 
-	if args.no_proof is False or arg.debug is True:											# Print proof with QR code
+	if args.no_proof is False or args.debug is True:											# Print proof with QR code
 		cv2.namedWindow('[PROOF]', cv2.WINDOW_NORMAL)
 		cv2.resizeWindow('[PROOF]', 1000, 1000)
 		cv2.imshow('[PROOF]', ears_proof); cv2.waitKey(3000); cv2.destroyAllWindows()
@@ -687,7 +687,7 @@ def main():
 			log.info("[EAR]--{}--Ear #{}: Ear proof saved to: {}".format(filename, n, destin))			
 			cv2.imwrite(destin, ear_proof)
 
-		if args.no_proof is False or arg.debug is True:
+		if args.no_proof is False or args.debug is True:
 			cv2.namedWindow('[SILK CLEAN UP]', cv2.WINDOW_NORMAL)
 			cv2.resizeWindow('[SILK CLEAN UP]', 1000, 1000)
 			cv2.imshow('[SILK CLEAN UP]', ear_proof); cv2.waitKey(2000); cv2.destroyAllWindows()
