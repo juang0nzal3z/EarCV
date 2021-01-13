@@ -16,6 +16,10 @@ Quick Start
 
 We will asume you are running this from the main ''EarCV/'' folder contianing this repo. Let's use images within the ''/test/'' folder as examples. 
 
+CLONE REPO::
+
+ git clone https://github.com/juang0nzal3z/Test1_-earcv-.git <-- NOT THIS!
+
 ^^^^^^^^^^^^^^
 Simplest case:
 ^^^^^^^^^^^^^^
@@ -411,5 +415,5 @@ This tool allows the user to convert any 1D or 2D measurements from pixels to a 
 
 * Examples::
 
-	python ppm.py test_img_2.png 100
+	python colorcorrection.py test_img_2.png False
 

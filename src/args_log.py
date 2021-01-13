@@ -24,11 +24,11 @@ def options():
 	parser.add_argument("-qr_scan", "--qr_window_size_overlap", metavar=("[Window size of x pixels by x pixels]", "[Amount of overlap (0 < x < 1)]"), nargs=2, type=float, help="Provide the size of window to scan through image for QR code and the amount of overlap between sections(0 < x < 1).")
 
 	#Color Checker options
-	parser.add_argument("-clr", "--color_checker", nargs=1, help="Path to input image file with refference color checker.")
-
+	parser.add_argument("-clr", "--color_checker", default="None", help="Path to input image file with refference color checker. If none provided will use default values.", nargs='?', const='', required=False)
+	
 	#Pixels Per Metric options
 	parser.add_argument("-ppm", "--pixelspermetric", metavar=("[Refference length]"), nargs=1, type=float, help="Calculate pixels per metric using either a color checker or the largest uniform color square. Provide refference length.")
-
+	
 	#Find Ears options
 	parser.add_argument("-filter", "--ear_filter", metavar=("[Min area as % of total image area]", "[Max Area as % of total image area]", "[Max Aspect Ratio]", "[Max Solidity]"), nargs=4, type=float, help="Ear segmentation filter. Default: Min Area--1 percent, Max Area--x percent, Max Aspect Ratio: x < 0.6,  Max Solidity: 0.98. Flag with three arguments to customize ear filter.")
 	parser.add_argument("-clnup", "--ear_cleanup", metavar=("[Max area COV]", "[Max iterations]"), help="Ear clean-up module. Default: Max Area Coefficient of Variation threshold: 0.2, Max number of iterations: 10. Flag with two arguments to customize clean up module.", nargs=2, type=float, required=False)

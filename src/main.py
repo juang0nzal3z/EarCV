@@ -42,7 +42,7 @@ from plantcv import plantcv as pcv
 import utility
 import args_log
 import qr
-import colorcorrection
+import clr
 import ppm
 import find_ears
 import features
@@ -226,18 +226,34 @@ def main():
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	##############################  Color correction module  #################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-	if args.color_checker is not None:
-		reff_fullpath, reff_root, reff_filename, reff_ext = utility.img_parse(args.color_checker[0])		# Parse provided path for refference color checker image
+	
+	
+	if args.color_checker != "None" and args.color_checker != "":
+		
+		reff_fullpath, reff_root, reff_filename, reff_ext = utility.img_parse(args.color_checker)		# Parse provided path for refference color checker image
 
 		if imghdr.what(reff_fullpath) is None:
 			log.warning("[ERROR]--{}--Invalid refference image file provided".format(reff_fullpath)) 		# RUN A TEST HERE IF IMAGE IS REAL
-			raise Exception										
+			raise Exception	
 
-		log.info("[COLOR]--{}--Starting color correction module...".format(filename)) # Log
-		reff=cv2.imread(reff_fullpath)	
+		log.info("[COLOR]--{}--Starting color correction module with provided color checker reference...".format(filename)) # Log
 		
-		color_proof, tar_chk, corrected, avg_tar_error, avg_trans_error, csv_field = colorcorrection.color_correct(filename, img, reff, args.debug)	#Run the color correction module
-		
+		reff=cv2.imread(reff_fullpath)
+		color_proof, tar_chk, corrected, avg_tar_error, avg_trans_error, csv_field = clr.color_correct(filename, img, reff, args.debug)	#Run the color correction module
+
+	elif args.color_checker != "None":
+		reff = None
+		log.info("[COLOR]--{}--No refference color checker provided. Starting color correction module using hardcoded values...".format(filename)) # Log
+		color_proof, tar_chk, corrected, avg_tar_error, avg_trans_error, csv_field = clr.color_correct(filename, img, reff, args.debug)	#Run the color correction module
+
+	else:
+		tar_chk = None
+		log.info("[COLOR]--{}--Color correction module turned off".format(filename))
+		color_proof = mask = np.zeros_like(img)
+		color_proof = mask = np.zeros_like(img)
+		cv2.putText(color_proof, "Color correction module off", (int(500), int(500)), cv2.FONT_HERSHEY_SIMPLEX, 7, (0, 0, 255), 15)	
+		 
+	if tar_check is not None:
 		log.info("[COLOR]--{}--Before correction - {} After correction - {}".format(filename, avg_tar_error, avg_trans_error)) # Log
 
 		img[tar_chk != 0] = 0															# Mask out found color checker
@@ -262,13 +278,6 @@ def main():
 			cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
 			cv2.resizeWindow('Pixels Per Metric: FOUND', 1000, 1000)
 			cv2.imshow('Pixels Per Metric: FOUND', img); cv2.waitKey(3000); cv2.destroyAllWindows()
-
-	else:
-		log.info("[COLOR]--{}--Color correction module turned off".format(filename))
-		color_proof = mask = np.zeros_like(img)
-		color_proof = mask = np.zeros_like(img)
-		cv2.putText(color_proof, "Color correction module off", (int(500), int(500)), cv2.FONT_HERSHEY_SIMPLEX, 7, (0, 0, 255), 15)	
-		 
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	##############################  PIXELS PER METRIC MODULE  ################################

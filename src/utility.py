@@ -18,13 +18,6 @@ from matplotlib import pyplot as plt
 from pyzbar.pyzbar import decode 
 from scipy.spatial import distance as dist
 from plantcv import plantcv as pcv
-
-
-from plantcv import plantcv as pcv
-import math
-import numpy as np
-import os
-import csv
 from scipy import sparse
 
 
@@ -69,7 +62,7 @@ def calculate_color_diff(filename,target_im, src_matrix, tar_matrix, transfer_ch
     dist1_r = []
     dist1_g = []
     dist1_b = []
-    csv_field = [filename]
+    csv_field = [target_im]
     avg_transfer_error = 0.0
     for r in range(0, np.ma.size(transfer_matrix, 0)):
         for i in range(0, np.ma.size(src_matrix, 0)):
@@ -107,6 +100,7 @@ def calculate_H_using_ALS(p1, p2, max_iter, tol):
     ind1 = np.sum((p1 > 0) & (p1 < np.Inf), 0) == Npx
     ind2 = np.sum((p2 > 0) & (p2 < np.Inf), 0) == Npx
     vind = ind1 & ind2
+    print(vind)
     # TODO: Add a size check for p1 & p2
     while(n_it < max_iter):
         n_it = n_it + 1
@@ -126,7 +120,6 @@ def solve_D(p, q):
     D = sparse.spdiags(d, 0, nPx, nPx)
     D = sparse.dia_matrix.astype(D, float).toarray()
     return D
-
 
 """ --------------------------------------------------------------------------------------------------
  Apply the learnt color homography matrix to the target image
