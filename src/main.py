@@ -69,7 +69,7 @@ def main():
         [-h] -i IMAGE [-o OUTDIR] [-ns] [-np] [-D] [-qr] [-r]
         [-qr_scan [Window size of x pixels by x pixels]
         [Amount of overlap 0 < x < 1]] [-clr COLOR_CHECKER]
-        [-ppm [Refference length]]
+        [-ppm [reference length]]
         [-filter [Min area as % of total image area]
         [Max Area as % of total image area] [Max Aspect Ratio]
         [Max Solidity]] [-clnup [Max area COV] [Max iterations]]
@@ -91,8 +91,8 @@ def main():
         -qr, --qrcode                          Raise flag to scan entire image for QR code.
         -r, --rename                           Default renames images with found QRcode. Raise flag to stop renaming images with found QR code.
         -qr_scan, --qr_window_size_overlap     Advanced QR code scanning by breaking the image into subsections. [Window size of x pixels by x pixels] [Amount of overlap (0 < x < 1)] Provide the pixel size of square window to scan through image for QR code and the amount of overlap between sections (0 < x < 1).
-        -clr, --color_checker COLOR_CHECKER    Path to input image file with refference color checker.
-        -ppm, --pixelspermetric                [Refference length] Calculate pixels per metric using either a color checker or the largest uniform color square. Provide refference length.
+        -clr, --color_checker COLOR_CHECKER    Path to input image file with reference color checker.
+        -ppm, --pixelspermetric                [reference length] Calculate pixels per metric using either a color checker or the largest uniform color square. Provide reference length.
         
 
         -filter, --ear_filter       [Min area as % of total image area] [Max Area as % of total image area] [Max Aspect Ratio] [Max Solidity] Ear segmentation filter, filters each segmented object based on area, aspect ratio, and solidity. Default: Min Area--1 percent, Max Area--x percent, Max Aspect Ratio: x < 0.6, Max Solidity: 0.98. Flag with three arguments to customize ear filter.
@@ -227,13 +227,14 @@ def main():
 	##############################  Color correction module  #################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	
+	tar_check = None
 	
 	if args.color_checker != "None" and args.color_checker != "":
 		
-		reff_fullpath, reff_root, reff_filename, reff_ext = utility.img_parse(args.color_checker)		# Parse provided path for refference color checker image
+		reff_fullpath, reff_root, reff_filename, reff_ext = utility.img_parse(args.color_checker)		# Parse provided path for reference color checker image
 
 		if imghdr.what(reff_fullpath) is None:
-			log.warning("[ERROR]--{}--Invalid refference image file provided".format(reff_fullpath)) 		# RUN A TEST HERE IF IMAGE IS REAL
+			log.warning("[ERROR]--{}--Invalid reference image file provided".format(reff_fullpath)) 		# RUN A TEST HERE IF IMAGE IS REAL
 			raise Exception	
 
 		log.info("[COLOR]--{}--Starting color correction module with provided color checker reference...".format(filename)) # Log
@@ -243,7 +244,7 @@ def main():
 
 	elif args.color_checker != "None":
 		reff = None
-		log.info("[COLOR]--{}--No refference color checker provided. Starting color correction module using hardcoded values...".format(filename)) # Log
+		log.info("[COLOR]--{}--No reference color checker provided. Starting color correction module using hardcoded values...".format(filename)) # Log
 		color_proof, tar_chk, corrected, avg_tar_error, avg_trans_error, csv_field = clr.color_correct(filename, img, reff, args.debug)	#Run the color correction module
 
 	else:
@@ -312,7 +313,7 @@ def main():
 					writer.writerow({'Filename': filename, 'Pixels Per Metric': PixelsPerMetric})
 				log.info("[PPM]--{}--Saved pixels per metric to: {}pixelspermetric.csv".format(filename, out))			
 		else:
-			log.warning("[PPM]--{}--No size refference found for pixel per metric calculation".format(filename))
+			log.warning("[PPM]--{}--No size reference found for pixel per metric calculation".format(filename))
 			PixelsPerMetric = None
 
 	else:
