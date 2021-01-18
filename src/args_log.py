@@ -30,6 +30,7 @@ def options():
 	parser.add_argument("-ppm", "--pixelspermetric", metavar=("[Refference length]"), nargs=1, type=float, help="Calculate pixels per metric using either a color checker or the largest uniform color square. Provide refference length.")
 	
 	#Find Ears options
+	parser.add_argument("-thresh", "--threshold", metavar=("[channel]", "[intensity threshold]", "[invert]"), help="Manueal ear esgmentation module. Use if K fails", nargs=3, required=False)
 	parser.add_argument("-filter", "--ear_filter", metavar=("[Min area as % of total image area]", "[Max Area as % of total image area]", "[Max Aspect Ratio]", "[Max Solidity]"), nargs=4, type=float, help="Ear segmentation filter. Default: Min Area--1 percent, Max Area--x percent, Max Aspect Ratio: x < 0.6,  Max Solidity: 0.98. Flag with three arguments to customize ear filter.")
 	parser.add_argument("-clnup", "--ear_cleanup", metavar=("[Max area COV]", "[Max iterations]"), help="Ear clean-up module. Default: Max Area Coefficient of Variation threshold: 0.2, Max number of iterations: 10. Flag with two arguments to customize clean up module.", nargs=2, type=float, required=False)
 	parser.add_argument("-slk", "--silk_cleanup", metavar=("[Min delta convexity change]", "[Max iterations]"), nargs=2, type=float, help="Silk decontamination module. Default: Min change in covexity: 0.04, Max number of iterations: 10. Flag with two arguments to customize silk clean up module")

@@ -47,6 +47,7 @@ import ppm
 import find_ears
 import features
 import cob_shank_segmentation
+import thresh
 
 
 #import entropy
@@ -242,7 +243,7 @@ def main():
 		reff=cv2.imread(reff_fullpath)
 		color_proof, tar_chk, corrected, avg_tar_error, avg_trans_error, csv_field = clr.color_correct(filename, img, reff, args.debug)	#Run the color correction module
 
-	elif args.color_checker != "None":
+	elif args.color_checker == "None":
 		reff = None
 		log.info("[COLOR]--{}--No reference color checker provided. Starting color correction module using hardcoded values...".format(filename)) # Log
 		color_proof, tar_chk, corrected, avg_tar_error, avg_trans_error, csv_field = clr.color_correct(filename, img, reff, args.debug)	#Run the color correction module
@@ -285,14 +286,10 @@ def main():
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	if args.pixelspermetric is not None:
 		PixelsPerMetric = None
-		log.info("[PPM]--{}--Calculating pixels per metric...".format(filename))
 		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~PPM module Output
-		if args.color_checker is not None:
-			log.info("[PPM]--{}--Using color checker to calculate pixels per metric...".format(filename))
-			PixelsPerMetric, ppm_proof = ppm.ppm_square(tar_chk, args.pixelspermetric[0])	#Run the pixels per metric module using color checker
-		else:
-			log.info("[PPM]--{}--Looking for solid color square to calculate pixels per metric...".format(filename))
-			PixelsPerMetric, ppm_proof = ppm.ppm_square(img, args.pixelspermetric[0])	#Run the pixels per metric module without color checker
+		log.info("[PPM]--{}--Looking for solid color square to calculate pixels per metric...".format(filename))
+		PixelsPerMetric, ppm_proof = ppm.ppm_square(img, args.pixelspermetric[0])	#Run the pixels per metric module without color checker
+		
 		if PixelsPerMetric is not None:
 			log.info("[PPM]--{}--Found {} pixels per metric".format(filename, PixelsPerMetric))	
 			
@@ -325,9 +322,19 @@ def main():
 	##################################  Find ears module  ####################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	log.info("[EARS]--{}--Looking for ears...".format(filename))
-	ears_proof = img.copy()
-	bkgrnd = find_ears.kmeans(img)									# Use kmeans to segment everything from the background
 	img_area = img_w*img_h
+	ears_proof = img.copy()
+	bkgrnd = img.copy()
+
+	if args.threshold is None:
+		bkgrnd = find_ears.kmeans(img)									# Use kmeans to segment everything from the background
+	else:
+		channel = args.threshold[0]
+		threshold = args.threshold[1]
+		inv = args.threshold[2]
+		bkgrnd = thresh.thresh(img,channel,threshold, inv)									# Manually threshold the thing
+	
+
 	
 	if args.debug is True:
 		cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
@@ -342,13 +349,17 @@ def main():
 		solidity = args.ear_filter[3]
 	else:
 		min_area = img_area*0.010
-		max_area = img_area*0.100
+		max_area = img_area*0.150
 		aspect_ratio = 0.6
 		solidity = 0.983
-		log.info("[EARS]--{}--Segmenting ears with default settings: Min Area: 1%, Max Area: 10%, 0.19 < Aspect Ratio < {}, Solidity < {}".format(filename, aspect_ratio, solidity))
+		log.info("[EARS]--{}--Segmenting ears with default settings: Min Area: {}%, Max Area: {}%, 0.19 < Aspect Ratio < {}, Solidity < {}".format(filename, min_area, max_area, aspect_ratio, solidity))
 	
 	filtered, ear_number = find_ears.filter(filename, bkgrnd, min_area, max_area, aspect_ratio, solidity)		# Run the filter module
 	log.info("[EARS]--{}--Found {} Ear(s) before clean up".format(filename, ear_number))
+
+	if ear_number == 0:									# Is the image path valid?
+		log.warning("[ERROR]--{}--No ears found...aborting".format(fullpath)) # Log
+		raise Exception	
 
 	cov = None
 	cov = find_ears.calculate_area_cov(filtered, cov)																#Calculate area coeficient of variance
@@ -367,7 +378,7 @@ def main():
 			log.info("[CLNUP]--{}--Ear clean-up module: Iterate up to {} times or until area COV < {}. Current COV: {} and iteration {}".format(filename, max_iterations, max_cov, round(cov, 3), i))
 			mask = cv2.morphologyEx(filtered, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (i,i)), iterations=i)
 			filtered, ear_number = find_ears.filter(filename, mask, min_area, max_area, aspect_ratio, solidity)		# Run the filter module
-			cov = find_ears.calculate_area_cov(filtered)																# Calculate area coeficient of variance			
+			cov = find_ears.calculate_area_cov(filtered, cov)																# Calculate area coeficient of variance			
 			i = i+1
 		log.info("[CLNUP]--{}--Ear clean-up module finished. Final Area COV--{}".format(filename, cov))
 
@@ -386,6 +397,11 @@ def main():
 	else:
 		log.info("[CLNUP]--{}--Area COV under threshold. Ear clean-up module turned off.".format(filename))
 
+	
+	if ear_number == 0:									# Is the image path valid?
+		log.warning("[ERROR]--{}--No ears found after clean up...aborting".format(fullpath)) # Log
+		raise Exception	
+
 	ears = img.copy()
 	ears[filtered == 0] = 0
 
@@ -394,6 +410,7 @@ def main():
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	cnts = cv2.findContours(filtered, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE); cnts = cnts[0] if len(cnts) == 2 else cnts[1]
 	boundingBoxes = [cv2.boundingRect(c) for c in cnts]
+	#print(boundingBoxes)
 #Sort left to right
 	(cnts, boundingBoxes) = zip(*sorted(zip(cnts, boundingBoxes), key=lambda b:b[1][0], reverse= False))
 #Count the number of ears and number them on proof
@@ -575,7 +592,7 @@ def main():
 		ear = final_ear_masks[r]
 		log.info('[EAR]--{}--Ear #{}: Extracting basic morphological features...'.format(filename, n))
 		#Ear_Area = Convexity = Solidity = Ellipse = Ear_Box_Width = Ear_Box_Length = Ear_Box_Area = Ear_Extreme_Length = Ear_Area_DP = Solidity_PolyDP = Solidity_Box = Taper_PolyDP = Taper_Box = Widths = Widths_Sdev = Cents_Sdev = Ear_area = Tip_Area = Bottom_Area = Krnl_Area = Tip_Fill = Blue = Green = Red = Hue = Sat = Vol = Light = A_chnnl = B_chnnl = second_width = mom1 = None
-		Ear_Area, Ear_Box_Area, Ear_Box_Length, Ear_Box_Width, newWidths, max_Width, perimeters, Convexity, Solidity, Convexity_polyDP, Taper, Taper_Convexity, Taper_Solidity, Taper_Convexity_polyDP, Widths_Sdev, Cents_Sdev, ear_proof, canvas, wid_proof = features.extract_feats(ear, PixelsPerMetric)
+		Ear_Area, Ear_Box_Area, Ear_Box_Length, Ear_Extreme_Length, Ear_Box_Width, newWidths, max_Width, MA, ma, perimeters, Convexity, Solidity, Convexity_polyDP, Taper, Taper_Convexity, Taper_Solidity, Taper_Convexity_polyDP, Widths_Sdev, Cents_Sdev, ear_proof, canvas, wid_proof = features.extract_feats(ear, PixelsPerMetric)
 		log.info('[EAR]--{}--Ear #{}: Done extracting basic morphological features'.format(filename, n))
 
 		_,_,r = cv2.split(ear)											#Split into it channel constituents
@@ -700,9 +717,9 @@ def main():
 			csvname = out + 'features' +'.csv'
 			file_exists = os.path.isfile(csvname)
 			with open (csvname, 'a') as csvfile:
-				headers = ['Filename', 'Ear Number', 'Ear_Area', 'Ear_Box_Area', 'Ear_Box_Length', 'Ear_Box_Width', 'Max_Width', 'perimeters', 
+				headers = ['Filename', 'Ear Number', 'Ear_Area', 'Ear_Box_Area', 'Ear_Box_Length', 'Ear_Extreme_Length', 'Ear_Box_Width', 'Max_Width', 'MA_Ellipse', 'ma_Ellipse', 'Perimeter', 
 							'Convexity', 'Solidity', 'Convexity_polyDP', 'Taper', 'Taper_Convexity', 'Taper_Solidity', 'Taper_Convexity_polyDP', 
-							'Widths_Sdev', 'Cents_Sdev', 'Tip_Area', 'Bottom_Area', 'Krnl_Area', 'Kernel_Length', 'Krnl_Convexity', 'Tip_Fill', 
+							'Widths_Sdev', 'Curvature', 'Tip_Area', 'Bottom_Area', 'Krnl_Area', 'Kernel_Length', 'Krnl_Convexity', 'Tip_Fill', 
 							'Bottom_Fill', 'Krnl_Fill', 'Blue', 'Red', 'Green', 'Hue', 'Sat', 'Vol', 'Light', 'A_chnnl', 'B_chnnl']  
 
 
@@ -711,13 +728,14 @@ def main():
 					writer.writeheader()  # file doesn't exist yet, write a header	
 
 				writer.writerow({'Filename': filename,'Ear Number': n, 'Ear_Area': Ear_Area, 'Ear_Box_Area': Ear_Box_Area,
-								 'Ear_Box_Length': Ear_Box_Length, 'Ear_Box_Width': Ear_Box_Width, 'Max_Width': max_Width, 'perimeters': perimeters,
+								 'Ear_Box_Length': Ear_Box_Length, 'Ear_Extreme_Length': Ear_Extreme_Length, 'Ear_Box_Width': Ear_Box_Width,
+								 'Max_Width': max_Width, 'MA_Ellipse': MA, 'ma_Ellipse': ma, 'Perimeter': perimeters,
 								 'Convexity': Convexity , 'Solidity': Solidity, 'Convexity_polyDP': Convexity_polyDP, 'Taper': Taper,
 								 'Taper_Convexity': Taper_Convexity, 'Taper_Solidity': Taper_Solidity, 'Taper_Convexity_polyDP': Taper_Convexity_polyDP, 
-							     'Widths_Sdev': Widths_Sdev, 'Cents_Sdev': Cents_Sdev, 'Tip_Area': Tip_Area, 'Bottom_Area': Bottom_Area, 
+							     'Widths_Sdev': Widths_Sdev, 'Curvature': Cents_Sdev, 'Tip_Area': Tip_Area, 'Bottom_Area': Bottom_Area, 
 							     'Krnl_Area': Krnl_Area, 'Kernel_Length': Kernel_Length , 'Krnl_Convexity': Krnl_Convexity, 'Tip_Fill': Tip_Fill, 
-								 'Bottom_Fill': Bottom_Fill, 'Krnl_Fill': Krnl_Fill , 'Blue':Blue , 'Red':Red , 'Green':Green , 'Hue': Hue, 'Sat':Sat,
-								 'Vol':Vol , 'Light':Light , 'A_chnnl':A_chnnl , 'B_chnnl':B_chnnl})
+								 'Bottom_Fill': Bottom_Fill, 'Krnl_Fill': Krnl_Fill , 'Blue': Blue , 'Red': Red , 'Green': Green , 'Hue': Hue, 'Sat': Sat,
+								 'Vol': Vol , 'Light': Light , 'A_chnnl': A_chnnl , 'B_chnnl': B_chnnl})
 
 		log.info("[EAR]--{}--Ear #{}: Saved features to: {}features.csv".format(filename, n, out))
 		n = n + 1

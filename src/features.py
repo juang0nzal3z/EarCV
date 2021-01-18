@@ -46,6 +46,8 @@ def extract_feats(ear, PixelsPerMetric):
 		Convexity = hullperimeters/perimeters
 		Solidity = float(Ear_Area)/hull_areas
 		Ellipse = cv2.fitEllipse(cs)
+		MA = Ellipse[1][1]
+		ma = Ellipse[1][0]
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 ##################################### EAR BOX ############################################
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -182,12 +184,14 @@ def extract_feats(ear, PixelsPerMetric):
 		perimeters = perimeters	/ (PixelsPerMetric)		
 		newWidths = [x / PixelsPerMetric for x in Widths]
 		max_Width = max(Widths)
-		max_Width = max_Width / (PixelsPerMetric)	
+		max_Width = max_Width / (PixelsPerMetric)
+		MA = MA / (PixelsPerMetric)
+		ma = ma / (PixelsPerMetric)	
 	else:
 		newWidths = Widths
 		max_Width = max(Widths)
 
-	return	Ear_Area, Ear_Box_Area, Ear_Box_Length, Ear_Box_Width, newWidths, max_Width, perimeters, Convexity, Solidity, Convexity_polyDP, Taper, Taper_Convexity, Taper_Solidity, Taper_Convexity_polyDP, Widths_Sdev, Cents_Sdev, ear_proof, canvas, wid_proof
+	return	Ear_Area, Ear_Box_Area, Ear_Box_Length, Ear_Extreme_Length, Ear_Box_Width, newWidths, max_Width, MA, ma, perimeters, Convexity, Solidity, Convexity_polyDP, Taper, Taper_Convexity, Taper_Solidity, Taper_Convexity_polyDP, Widths_Sdev, Cents_Sdev, ear_proof, canvas, wid_proof
 
 def krnl_feats(ear, tip, bottom, PixelsPerMetric):			
 	krnl_proof = ear.copy()
