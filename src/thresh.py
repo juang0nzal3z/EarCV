@@ -11,7 +11,7 @@ import utility
 import cv2
 from matplotlib import pyplot as plt
 
-def thresh(img, channel, threshold, inv):
+def thresh(img, channel, threshold, inv, debug):
 
 	"""basic thersholding technique
 
@@ -58,10 +58,11 @@ def thresh(img, channel, threshold, inv):
 	elif channel == 'b_chnl':
 		channel = b_chnl
 
-	cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
-	cv2.resizeWindow('Pixels Per Metric: FOUND', 1000, 1000)
-	cv2.imshow('Pixels Per Metric: FOUND', channel); cv2.waitKey(3000); cv2.destroyAllWindows()
-	plt.hist(channel.ravel(),256,[0,256]); plt.show()
+	if debug is True:
+		cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
+		cv2.resizeWindow('Pixels Per Metric: FOUND', 1000, 1000)
+		cv2.imshow('Pixels Per Metric: FOUND', channel); cv2.waitKey(3000); cv2.destroyAllWindows()
+		plt.hist(channel.ravel(),256,[0,256]); plt.show()
 
 	if threshold == 'otsu':
 		otsu,bkgrnd = cv2.threshold(channel, 0, 255, cv2.THRESH_OTSU)
@@ -73,9 +74,10 @@ def thresh(img, channel, threshold, inv):
 	if inv == "inv":
 		bkgrnd=cv2.bitwise_not(bkgrnd)
 
-	cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
-	cv2.resizeWindow('Pixels Per Metric: FOUND', 1000, 1000)
-	cv2.imshow('Pixels Per Metric: FOUND', bkgrnd); cv2.waitKey(3000); cv2.destroyAllWindows()
+	if debug is True:
+		cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
+		cv2.resizeWindow('Pixels Per Metric: FOUND', 1000, 1000)
+		cv2.imshow('Pixels Per Metric: FOUND', bkgrnd); cv2.waitKey(3000); cv2.destroyAllWindows()
 
 	return bkgrnd
 
