@@ -31,9 +31,7 @@ def extract_feats(ear, PixelsPerMetric):
 	
 	#cv2.namedWindow('[SILK CLEAN UP]', cv2.WINDOW_NORMAL)
 	#cv2.resizeWindow('[SILK CLEAN UP]', 1000, 1000)
-	#cv2.imshow('[SILK CLEAN UP]', r); cv2.waitKey(2000); cv2.destroyAllWindows() 
-
-
+	#cv2.imshow('[SILK CLEAN UP]', r); cv2.waitKey(2000); cv2.destroyAllWindows()
 
 	cntss = cntss[0] if len(cntss) == 2 else cntss[1]
 	cntss = sorted(cntss, key=cv2.contourArea, reverse=False)[:len(cntss)]
@@ -202,16 +200,12 @@ def krnl_feats(ear, tip, bottom, PixelsPerMetric):
 	Ear_area = cv2.countNonZero(r)
 	
 	cob = tip + bottom
-
 	uncob = ear.copy()
 	krnl = ear.copy()
 	uncob[cob == 255] = 0
-
 	_,_,uncob = cv2.split(uncob)
 	_,uncob = cv2.threshold(uncob, 0, 255, cv2.THRESH_OTSU)
 	uncob = utility.cnctfill(uncob)
-	#cob = utility.cnctfill(cob)
-	#cob[uncob == 255] = 0
 	krnl[uncob == 0] = 0
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -220,7 +214,13 @@ def krnl_feats(ear, tip, bottom, PixelsPerMetric):
 
 	pixels = np.float32(krnl[uncob !=  0].reshape(-1, 3))
 			
-	Blue, Red, Green, Hue, Sat, Vol, Light, A_chnnl, B_chnnl = dominant_cols(krnl, pixels)
+	Blue, Green, Red, Hue, Sat, Vol, Light, A_chnnl, B_chnnl = dominant_cols(krnl, pixels)
+
+
+	#frame_fr = np.zeros_like(krnl)
+	#frame_fr[uncob > 0] = [Blue, Red, Green]
+
+
 
 	Tip_Area = cv2.countNonZero(tip)
 	Bottom_Area = cv2.countNonZero(bottom)
@@ -236,7 +236,7 @@ def krnl_feats(ear, tip, bottom, PixelsPerMetric):
 		if krnl_perimeters != 0:
 			Krnl_Convexity = krnl_hullperimeters/krnl_perimeters
 		
-		krnl_proof =cv2.drawContours(krnl_proof, [cs], -1, ([int(Blue), int(Red), int(Green)]), -1)	
+		krnl_proof =cv2.drawContours(krnl_proof, [cs], -1, ([int(Blue), int(Green), int(Red)]), -1)	
 		rects = cv2.minAreaRect(cs)
 		boxs = cv2.boxPoints(rects)
 		boxs = np.array(boxs, dtype="int")			
@@ -275,9 +275,9 @@ def dominant_cols(krnl, pixels):
 	_, labels, palette = cv2.kmeans(pixels, n_colors, None, criteria, 10, flags)
 	_, counts = np.unique(labels, return_counts=True)
 	dominant = palette[np.argmax(counts)]
-	Blue = dominant[0]
-	Red = dominant[1]
-	Green = dominant[2]
+	Red = dominant[0]
+	Green = dominant[1]
+	Blue = dominant[2]
 #~~~~~~~~~~~~~~~~~~~~~~~~~Dominant HSV Color
 	hsv = cv2.cvtColor(krnl, cv2.COLOR_BGR2HSV)						#Convert into HSV color Space
 	pixels = np.float32(hsv[r != 0].reshape(-1, 3))
@@ -304,4 +304,4 @@ def dominant_cols(krnl, pixels):
 	A_chnnl = lab_dominant[1]
 	B_chnnl = lab_dominant[2]
 
-	return Blue, Red, Green, Hue, Sat, Vol, Light, A_chnnl, B_chnnl
+	return Red, Green, Blue, Hue, Sat, Vol, Light, A_chnnl, B_chnnl

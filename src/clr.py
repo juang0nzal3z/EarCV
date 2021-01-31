@@ -19,10 +19,10 @@ import utility
 import sys
 
 def color_correct(filename, img, reff, debug):
-    """Corrects the color of an image that contains a color checker based on refference.
+    """Corrects the color of an image that contains a color checker based on reference.
 
-    This tool can optionally use any refference image of a color checker for color correction.
-    You may use the provided refference in this package called clrchr.png.
+    This tool can optionally use any reference image of a color checker for color correction.
+    You may use the provided reference in this package called clrchr.png.
     Credit to: Nayanika Ghosh, https://github.com/juang0nzal3z/EarCV/tree/main/ColorHomography
 
     Parameters
@@ -31,7 +31,7 @@ def color_correct(filename, img, reff, debug):
         Valid file path to image to be color corrected. Accepted formats: 'tiff', 'jpeg', 'bmp', 'png'.
     
     reff_name: array-like
-        Valid file path to refference image to be used as ground truth for color correction. Accepted formats: 'tiff', 'jpeg', 'bmp', 'png'.
+        Valid file path to reference image to be used as ground truth for color correction. Accepted formats: 'tiff', 'jpeg', 'bmp', 'png'.
 
     debug: bool
         If true, print output proof images.
@@ -100,9 +100,6 @@ def color_correct(filename, img, reff, debug):
                       [68, 82, 115], [44, 126, 214], [150, 61, 56], [242, 243, 243]])
         S_reshaped = np.reshape(S,(6, 4, 3))
 
-
-    print(S_reshaped)
-    print(S_reshaped.shape)
     # TARGET IMAGE
     tarImg = img
     # Extract the color chip mask and RGB color matrix from target color checker image
@@ -128,23 +125,22 @@ def color_correct(filename, img, reff, debug):
     corr = utility.apply_homo(tar_chk, homography, False)
     corrected = utility.apply_homo(tarImg, homography, True)
 
-    (avg_tar_error, avg_trans_error) = utility.calculate_color_diff(target, src_matrix, tar_matrix, corr)
-    print(target, ": Before correction - ", avg_tar_error, ". After correction - ", avg_trans_error)
-    corrected = cv2.cvtColor(corrected, cv2.COLOR_RGB2BGR)
-    tarImg = cv2.cvtColor(tarImg, cv2.COLOR_RGB2BGR)
-   #srcToShow = cv2.cvtColor(srcImg, cv2.COLOR_RGB2BGR)
+    (avg_tar_error, avg_trans_error, csv_field) = utility.calculate_color_diff(filename, tarImg, src_matrix, tar_matrix, corr)
+    #corrected = cv2.cvtColor(corrected, cv2.COLOR_RGB2BGR)
+    #tarImg = cv2.cvtColor(tarImg, cv2.COLOR_RGB2BGR)
+    #srcToShow = cv2.cvtColor(srcImg, cv2.COLOR_RGB2BGR)
 
     (avg_tar_error, avg_trans_error, csv_field) = utility.calculate_color_diff(filename, tarImg, src_matrix, tar_matrix, corr)
     
+    color_proof = cv2.vconcat([tarImg, corrected])
     #corrected = cv2.cvtColor(corrected, cv2.COLOR_RGB2BGR)
     #tarImg = cv2.cvtColor(tarImg, cv2.COLOR_RGB2BGR)
     #srcToShow = cv2.cvtColor(src_chk, cv2.COLOR_RGB2BGR)
     if debug is True:
         #utility.plot_images(srcToShow, tarImg, corrected)          # This is Nyanika's visual output
-        color_proof = cv2.vconcat([tarImg, corrected])
-        cv2.namedWindow('[COLOR][PROOF] Color Correction', cv2.WINDOW_NORMAL)
-        cv2.resizeWindow('[COLOR][PROOF] Color Correction', 1000, 1000)
-        cv2.imshow('[COLOR][PROOF] Color Correction', color_proof); cv2.waitKey(3000); cv2.destroyAllWindows()
+        cv2.namedWindow('[DEBUG] [COLOR] Color Correction Proof', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('[DEBUG] [COLOR] Color Correction Proof', 1000, 1000)
+        cv2.imshow('[DEBUG] [COLOR] Color Correction Proof', color_proof); cv2.waitKey(3000); cv2.destroyAllWindows()
 
     return color_proof, tar_chk, corrected, avg_tar_error, avg_trans_error, csv_field
 

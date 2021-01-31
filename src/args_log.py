@@ -27,17 +27,25 @@ def options():
 	parser.add_argument("-clr", "--color_checker", default="None", help="Path to input image file with refference color checker. If none provided will use default values.", nargs='?', const='', required=False)
 	
 	#Pixels Per Metric options
-	parser.add_argument("-ppm", "--pixelspermetric", metavar=("[Refference length]"), nargs=1, type=float, help="Calculate pixels per metric using either a color checker or the largest uniform color square. Provide refference length.")
+	parser.add_argument("-ppm", "--pixelspermetric", metavar=("[Refference length], [in/cm]"), nargs=2, help="Calculate pixels per metric using either a color checker or the largest uniform color square. Provide refference length in 'in' or 'cm'.")
 	
 	#Find Ears options
-	parser.add_argument("-thresh", "--threshold", metavar=("[channel]", "[intensity threshold]", "[invert]"), help="Manueal ear esgmentation module. Use if K fails", nargs=3, required=False)
-	parser.add_argument("-filter", "--ear_filter", metavar=("[Min area as % of total image area]", "[Max Area as % of total image area]", "[Max Aspect Ratio]", "[Max Solidity]"), nargs=4, type=float, help="Ear segmentation filter. Default: Min Area--1 percent, Max Area--x percent, Max Aspect Ratio: x < 0.6,  Max Solidity: 0.98. Flag with three arguments to customize ear filter.")
+	parser.add_argument("-thresh", "--threshold", metavar=("[channel]", "[intensity threshold]", "[invert]"), help="Manual ear segmentation module. Use if K fails", nargs=3, required=False)
+	parser.add_argument("-size", "--ear_size", metavar=("[Min area as percent of total image area]", "[Max Area as percent of total image area]"), nargs=2, type=float, help="Ear size filter. Default: Min Area--1.5%, Max Area--15%. Flag with two arguments to customize size filter.")
+	parser.add_argument("-filter", "--ear_filter", metavar=("[Max Aspect Ratio]", "[Max Solidity]"), nargs=2, type=float, help="Ear segmentation filter. Default: Max Aspect Ratio: x < 0.6,  Max Solidity: 0.983. Flag with two arguments to customize ear filter.")
 	parser.add_argument("-clnup", "--ear_cleanup", metavar=("[Max area COV]", "[Max iterations]"), help="Ear clean-up module. Default: Max Area Coefficient of Variation threshold: 0.2, Max number of iterations: 10. Flag with two arguments to customize clean up module.", nargs=2, type=float, required=False)
 	parser.add_argument("-slk", "--silk_cleanup", metavar=("[Min delta convexity change]", "[Max iterations]"), nargs=2, type=float, help="Silk decontamination module. Default: Min change in covexity: 0.04, Max number of iterations: 10. Flag with two arguments to customize silk clean up module")
+	parser.add_argument("-rot", "--rotation", default=True, action='store_false', help="Raise flag to stop ears from roating.")	
 
 	#Cob and shank segmentation options
-	parser.add_argument("-t", "--tip", nargs=4, metavar=("[Tip percent]", "[Contrast]", "[Threshold]", "[Close]"), type=float, help="Tip segmentation module. Tip percent, Contrast, Threshold, Close. Flag with four arguments to customize tip segmentation module. Turn of module by providing '0' for all arguments")
-	parser.add_argument("-b", "--bottom", nargs=4, metavar=("[Bottom percent]", "[Contrast]", "[Threshold]", "[Close]"), type=float, help="Bottom segmentation module. Bottom percent, Contrast, Threshold, Close. Flag with four arguments to customize tip segmentation module. Turn of module by providing '0' for all arguments")
+	parser.add_argument("-t", "--tip", nargs='*', help="Tip segmentation module. Usage: '-t': automatic thresholding, '-t k':  k means segmentation approach,  and '-t # # # #' for custom segmentation. Flag with four arguments to customize tip segmentation module with the following parameters: Tip percent, Contrast, Threshold, Dialate.")
+	parser.add_argument("-b", "--bottom", nargs='*', help="Bottom segmentation module. Usage: '-b': automatic thresholding, '-b k':  k means segmentation approach,  and '-b # # # #' for custom segmentation. Flag with four arguments to customize bottom segmentation module with the following parameters: Bottom percent, Contrast, Threshold, Dialate.")
+
+	#KRN call
+	parser.add_argument("-krn", "--kernel_row_number", default=False, action='store_true', help="Raise flag to call KRN peaks for fresh hybrid ears.")	
+
+	#Hyb call
+	parser.add_argument("-grade", "--usda_grade", default=False, action='store_true', help="Raise flag to predict USDA Grade peaks for fresh hybrid ears.")	
 
 	args = parser.parse_args()
 	return args

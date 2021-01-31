@@ -73,9 +73,9 @@ def qr_scan(qr_img, qr_window_size, overlap, debug):
 		inverted = 255-thresholded # black-in-white
 		
 		if debug is True:
-			cv2.namedWindow('Found QRcode', cv2.WINDOW_NORMAL)
-			cv2.resizeWindow('Found QRcode', 1000, 1000)
-			cv2.imshow('Found QRcode', inverted); cv2.waitKey(3000); cv2.destroyAllWindows()
+			cv2.namedWindow('[DEBUG] [QR] Scanning QRcode', cv2.WINDOW_NORMAL)
+			cv2.resizeWindow('[DEBUG] [QR] Scanning QRcode', 1000, 1000)
+			cv2.imshow('[DEBUG] [QR] Scanning QRcode', inverted); cv2.waitKey(2000); cv2.destroyAllWindows()
 
 		id = decode(inverted)
 		if id != []:
@@ -104,9 +104,9 @@ def qr_scan(qr_img, qr_window_size, overlap, debug):
 				inverted = 255-thresholded # black-in-white
 
 				if debug is True:
-					cv2.namedWindow('Original', cv2.WINDOW_NORMAL)
-					cv2.resizeWindow('Original', 1000, 1000)
-					cv2.imshow('Original', inverted); cv2.waitKey(1500); cv2.destroyAllWindows()
+					cv2.namedWindow('[DEBUG] [QR] Scanning QRcode', cv2.WINDOW_NORMAL)
+					cv2.resizeWindow('[DEBUG] [QR] Scanning QRcode', 1000, 1000)
+					cv2.imshow('[DEBUG] [QR] Scanning QRcode', inverted); cv2.waitKey(2000); cv2.destroyAllWindows()
 
 				id = decode(inverted)
 				if id != []:

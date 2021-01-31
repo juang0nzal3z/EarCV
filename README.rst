@@ -14,11 +14,11 @@ This tool allows the user to rapidly extract features from images containing mai
 Quick Start
 -----------
 
-We will asume you are running this from the main ''EarCV/'' folder contianing this repo. Let's use images within the ''/test/'' folder as examples. 
-
 CLONE REPO::
 
- git clone https://github.com/juang0nzal3z/Test1_-earcv-.git <-- NOT THIS!
+ git clone https://github.com/juang0nzal3z/EarCV.git
+
+Running tests from the main ''EarCV/'' folder contianing this repo. Let's use images within the ''/test/'' folder as examples.
 
 ^^^^^^^^^^^^^^
 Simplest case:
@@ -250,7 +250,7 @@ Full pipeline for automted maize ear phenotyping
 main.py [-h] -i IMAGE [-o OUTDIR] [-ns] [-np] [-D] [-qr] [-r]
         [-qr_scan [Window size of x pixels by x pixels]
         [Amount of overlap 0 < x < 1]] [-clr COLOR_CHECKER]
-        [-ppm [Refference length]]
+        [-ppm [reference length]]
         [-filter [Min area as % of total image area]
         [Max Area as % of total image area] [Max Aspect Ratio]
         [Max Solidity]] [-clnup [Max area COV] [Max iterations]]
@@ -279,12 +279,12 @@ main.py [-h] -i IMAGE [-o OUTDIR] [-ns] [-np] [-D] [-qr] [-r]
                         QR code and the amount of overlap between sections(0 <
                         x < 1).
   -clr COLOR_CHECKER, --color_checker COLOR_CHECKER
-                        Path to input image file with refference color
+                        Path to input image file with reference color
                         checker.
-  -ppm [Refference length], --pixelspermetric [Refference length]
+  -ppm [reference length], --pixelspermetric [reference length]
                         Calculate pixels per metric using either a color
                         checker or the largest uniform color square. Provide
-                        refference length.
+                        reference length.
   -filter [Min area as % of total image area] [Max Area as % of total image area] [Max Aspect Ratio] [Max Solidity], --ear_filter [Min area as % of total image area] [Max Area as % of total image area] [Max Aspect Ratio] [Max Solidity]
                         Ear segmentation filter. Default: Min Area--1 percent,
                         Max Area--x percent, Max Aspect Ratio: x < 0.6, Max
@@ -356,7 +356,7 @@ Scans image for QR code and extracts information using pyzbar's decode function.
 ----------------
 Color correction
 ----------------
-Corrects the color of an image that contains a color checker based on refference. This tool can optionally use any refference image of a color checker for color correction. You may use the provided refference in this package called 'clrchr.png'. Credit to: Nayanika Ghosh <https://github.com/juang0nzal3z/EarCV/tree/main/ColorHomography>
+Corrects the color of an image that contains a color checker based on reference. This tool can optionally use any reference image of a color checker for color correction. You may use the provided reference in this package called 'clrchr.png'. Credit to: Nayanika Ghosh <https://github.com/juang0nzal3z/EarCV/tree/main/ColorHomography>
 
 * Parameters
 
@@ -364,7 +364,7 @@ Corrects the color of an image that contains a color checker based on refference
 	    Valid file path to image to be color corrected. Accepted formats: 'tiff', 'jpeg', 'bmp', 'png'.
 
 	reff_name: array-like
-	    Valid file path to refference image to be used as ground truth for color correction. Accepted formats: 'tiff', 'jpeg', 'bmp', 'png'.
+	    Valid file path to reference image to be used as ground truth for color correction. Accepted formats: 'tiff', 'jpeg', 'bmp', 'png'.
 
 	debug: bool
 	    If true, print output proof images.
@@ -396,17 +396,17 @@ Corrects the color of an image that contains a color checker based on refference
 ------------------------
 Pixels per metric module
 ------------------------
-This tool allows the user to convert any 1D or 2D measurements from pixels to a know unit by providing a refference in the image. The refference must be a solid color square known dimensions. (Optional) Any square within a color checker may be used.
+This tool allows the user to convert any 1D or 2D measurements from pixels to a know unit by providing a reference in the image. The reference must be a solid color square known dimensions. (Optional) Any square within a color checker may be used.
 
 * Parameters
 	filename : array_like
 	    Valid file path to image. Accepted formats: 'tiff', 'jpeg', 'bmp', 'png'.
 	pixelspermetric: float
-	    Refference length of largest square in image in any lenght unit of interest.
+	    reference length of largest square in image in any lenght unit of interest.
 
 * Returns
 	PixelsPerMetric
-	    Number of pixels per unit refference provided (centimeters, inches, etc.)
+	    Number of pixels per unit reference provided (centimeters, inches, etc.)
 	ppm_proof
 	    Image showing the largest square and its ppm conversion ratio
 

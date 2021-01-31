@@ -106,8 +106,8 @@ def calculate_H_using_ALS(p1, p2, max_iter, tol):
         n_it = n_it + 1
         D = solve_D(N, p2)
         P_D = np.dot(D, p1)
-        P_X = np.linalg.pinv(P_D[:, vind])
-        H = np.dot(P_X, p2[:, vind])
+        P_X = np.linalg.pinv(P_D[:, :])
+        H = np.dot(P_X, p2[:, :])
         N = np.dot(P_D, H)
     PD = D
     return H, PD
@@ -428,7 +428,10 @@ def cnctfill(binary):
 		cnct[output == max_label] = 255
 	#take that connected component and invert it
 		nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(cv2.bitwise_not(cnct), connectivity=8)
-	# extracts sizes vector for each connected component
+	
+        
+
+    # extracts sizes vector for each connected component
 		sizes = stats[:, -1]
 	#initiate counters
 		max_label = 1
@@ -508,3 +511,105 @@ def build_montages(image_list, image_shape, montage_shape):
     if start_new_img is False:
         image_montages.append(montage_image)  # add unfinished montage
     return image_montages
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+def rescale_linear(array, new_min, new_max):
+    """Rescale an arrary linearly."""
+    minimum, maximum = np.min(array), np.max(array)
+    m = (new_max - new_min) / (maximum - minimum)
+    b = new_min - m * minimum
+    return m * array + b
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#  
+def circ(radius, chord):
+    ### has to be between -1 and 1
+    inside = chord / (2*radius)
+    if  -1 < inside < 1:
+        centa = np.arcsin(inside)*2
+        areasec = centa*(radius**2)*0.5
+        areacirc = math.pi*(radius**2)
+        KRN = areacirc/areasec
+    else:
+        print("arcsin not in bounds")
+        inside = np.nan
+        centa = np.nan
+        areasec = np.nan
+        areacirc = np.nan
+        KRN = np.nan
+    return inside, centa, areasec, areacirc, KRN    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+
+""" -----------------------------------------------------------------------------------------------------
+Basic Thresholding module for background removal when k means dont work
+ -----------------------------------------------------------------------------------------------------"""
+def thresh(img, channel, threshold, inv, debug):
+
+    """basic thersholding technique
+
+    b = 
+    g =
+    r =
+    h =
+    s =
+    v =
+    l =
+    a =
+    b_chnl =
+
+    threshold out be any number from 1< x < 254 or 'otsu'
+
+    'inv' to invert (use for white backgrounds)
+
+    """
+    ears = img.copy()
+    b,g,r = cv2.split(ears)                                         #Split into it channel constituents
+    hsv = cv2.cvtColor(ears, cv2.COLOR_BGR2HSV)
+    hsv[img == 0] = 0
+    h,s,v = cv2.split(hsv)                                          #Split into it channel constituents
+    lab = cv2.cvtColor(ears, cv2.COLOR_BGR2LAB)
+    lab[img == 0] = 0
+    l,a,b_chnl = cv2.split(lab)                                     #Split into it channel constituents
+    
+    if channel == 'b':
+        channel = b
+    elif channel == 'g':
+        channel = g
+    elif channel == 'r':
+        channel = r
+    elif channel == 'h':
+        channel = h
+    elif channel == 's':
+        channel = s
+    elif channel == 'v':
+        channel = v
+    elif channel == 'l':
+        channel = l
+    elif channel == 'a':
+        channel = a
+    elif channel == 'b_chnl':
+        channel = b_chnl
+
+    if debug is True:
+        cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('Pixels Per Metric: FOUND', 1000, 1000)
+        cv2.imshow('Pixels Per Metric: FOUND', channel); cv2.waitKey(3000); cv2.destroyAllWindows()
+        plt.hist(channel.ravel(),256,[0,256]); plt.show()
+
+    if threshold == 'otsu':
+        otsu,_ = cv2.threshold(channel, 0, 255, cv2.THRESH_OTSU)
+        bkgrnd = cv2.threshold(channel, int(otsu*0.75),256, cv2.THRESH_BINARY)[1]
+        print("otsu found {} threshold".format(otsu))
+    else:
+        bkgrnd = cv2.threshold(channel, int(threshold),256, cv2.THRESH_BINARY)[1]
+
+
+    if inv == "inv":
+        bkgrnd=cv2.bitwise_not(bkgrnd)
+
+    if debug is True:
+        cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('Pixels Per Metric: FOUND', 1000, 1000)
+        cv2.imshow('Pixels Per Metric: FOUND', bkgrnd); cv2.waitKey(3000); cv2.destroyAllWindows()
+
+    return bkgrnd

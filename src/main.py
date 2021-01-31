@@ -22,6 +22,7 @@ This file imports modules within the same folder:
     * find_ears.py - Segments ears in the input image.
     * features.py - Measures basic ear morphological features and kernel features.
     * cob_chank_segmentation.py - Segments kernel from cob and shank.
+    * krn.py - Counts kernel peaks and estimates median kernel width
 	* utilities.py - Helper functions needed thorughout the analysis.
 
 --------------------------------------------------------------------------------------------------"""
@@ -46,8 +47,9 @@ import clr
 import ppm
 import find_ears
 import features
-import cob_shank_segmentation
-import thresh
+import cob_seg
+import krn
+
 
 
 #import entropy
@@ -70,13 +72,13 @@ def main():
         [-h] -i IMAGE [-o OUTDIR] [-ns] [-np] [-D] [-qr] [-r]
         [-qr_scan [Window size of x pixels by x pixels]
         [Amount of overlap 0 < x < 1]] [-clr COLOR_CHECKER]
-        [-ppm [reference length]]
+        [-ppm [reference length] [in/cm]]
         [-filter [Min area as % of total image area]
         [Max Area as % of total image area] [Max Aspect Ratio]
         [Max Solidity]] [-clnup [Max area COV] [Max iterations]]
         [-slk [Min delta convexity change] [Max iterations]]
-        [-t [Tip percent] [Contrast] [Threshold] [Close]]
-        [-b [Bottom percent] [Contrast] [Threshold] [Close]]
+        [-t [Tip percent] [Contrast] [Threshold] [dialate]]
+        [-b [Bottom percent] [Contrast] [Threshold] [dialate]]
        
         Required:
 
@@ -93,7 +95,7 @@ def main():
         -r, --rename                           Default renames images with found QRcode. Raise flag to stop renaming images with found QR code.
         -qr_scan, --qr_window_size_overlap     Advanced QR code scanning by breaking the image into subsections. [Window size of x pixels by x pixels] [Amount of overlap (0 < x < 1)] Provide the pixel size of square window to scan through image for QR code and the amount of overlap between sections (0 < x < 1).
         -clr, --color_checker COLOR_CHECKER    Path to input image file with reference color checker.
-        -ppm, --pixelspermetric                [reference length] Calculate pixels per metric using either a color checker or the largest uniform color square. Provide reference length.
+        -ppm, --pixelspermetric                [Refference length] [in/cm] Calculate pixels per metric using either a color checker or the largest uniform color square. Provide reference length in 'in' or 'cm'.
         
 
         -filter, --ear_filter       [Min area as % of total image area] [Max Area as % of total image area] [Max Aspect Ratio] [Max Solidity] Ear segmentation filter, filters each segmented object based on area, aspect ratio, and solidity. Default: Min Area--1 percent, Max Area--x percent, Max Aspect Ratio: x < 0.6, Max Solidity: 0.98. Flag with three arguments to customize ear filter.
@@ -101,8 +103,8 @@ def main():
         -slk, --silk_cleanup        [Min delta convexity change] [Max iterations] Silk decontamination module. Default: Min change in covexity: 0.04, Max number of iterations: 10. Flag with two arguments to customize silk clean up module.
         
 
-        -t, --tip [Tip percent] [Contrast] [Threshold] [Close] Tip segmentation module. Tip percent, Contrast, Threshold, Close. Flag with four arguments to customize tip segmentation module. Use module defaults by providing '0' for all arguments.
-        -b, --bottom [Bottom percent] [Contrast] [Threshold] [Close] Bottom segmentation module. Bottom percent, Contrast, Threshold, Close. Flag with four arguments to customize tip segmentation module. Use module defaults module by providing '0' for all arguments.
+        -t, --tip [Tip percent] [Contrast] [Threshold] [dialate] Tip segmentation module. Tip percent, Contrast, Threshold, dialate. Flag with four arguments to customize tip segmentation module. Use module defaults by providing '0' for all arguments.
+        -b, --bottom [Bottom percent] [Contrast] [Threshold] [dialate] Bottom segmentation module. Bottom percent, Contrast, Threshold, dialate. Flag with four arguments to customize tip segmentation module. Use module defaults module by providing '0' for all arguments.
     
     Returns
     -------
@@ -199,9 +201,9 @@ def main():
 				cv2.rectangle(img, (x-40, y-40), (x + w + 320, y + h + 40), (0, 0, 0), -1)		# Remove qr code from image if you used the entire image
 
 			if args.debug is True:											# Print proof with QR code
-				cv2.namedWindow('[QR][PROOF] Found QRcode', cv2.WINDOW_NORMAL)
-				cv2.resizeWindow('[QR][PROOF] Found QRcode', 1000, 1000)
-				cv2.imshow('[QR][PROOF] Found QRcode', qr_proof); cv2.waitKey(3000); cv2.destroyAllWindows()
+				cv2.namedWindow('[DEBUG] [QR] QRcode Proof', cv2.WINDOW_NORMAL)
+				cv2.resizeWindow('[DEBUG] [QR] QRcode Proof', 1000, 1000)
+				cv2.imshow('[DEBUG] [QR] QRcode Proof', qr_proof); cv2.waitKey(3000); cv2.destroyAllWindows()
 				
 			if args.rename is True:												# Rename image with QR code
 				os.rename(args.image, root + QRcodeData + ext)
@@ -224,6 +226,55 @@ def main():
 		qr_proof = mask = np.zeros_like(img)
 		cv2.putText(qr_proof, "QR module off", (int(500), int(500)), cv2.FONT_HERSHEY_SIMPLEX, 7, (0, 0, 255), 15)	
 
+
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	##############################  PIXELS PER METRIC MODULE  ################################
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	if args.pixelspermetric is not None:
+		PixelsPerMetric = None
+		Units = args.pixelspermetric[1]
+		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~PPM module Output
+		log.info("[PPM]--{}--Looking for solid color square to calculate pixels per metric...".format(filename))
+		PixelsPerMetric, ppm_proof = ppm.ppm_square(img, float(args.pixelspermetric[0]))	#Run the pixels per metric module without color checker
+		
+		if PixelsPerMetric is not None:
+			log.info("[PPM]--{}--Found {} pixels per {}".format(filename, PixelsPerMetric, Units))	
+			
+			if args.debug is True:
+				cv2.namedWindow('[DEBUG] [PPM] Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
+				cv2.resizeWindow('DEBUG] [PPM] Pixels Per Metric: FOUND', 1000, 1000)
+				cv2.imshow('[DEBUG] [PPM] Pixels Per Metric: FOUND', ppm_proof); cv2.waitKey(3000); cv2.destroyAllWindows()
+
+		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ pixels per metric csv			
+			if args.no_save is False:		
+				csvname = out + 'pixelspermetric' +'.csv'
+				file_exists = os.path.isfile(csvname)
+				with open (csvname, 'a') as csvfile:
+					headers = ['Filename', 'Pixels Per Metric']
+					writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n',fieldnames=headers)
+					if not file_exists:
+						writer.writeheader()  # file doesn't exist yet, write a header	
+					writer.writerow({'Filename': filename, 'Pixels Per Metric': PixelsPerMetric})
+				log.info("[PPM]--{}--Saved pixels per {} to: {}pixelspermetric.csv".format(filename, Units, out))	
+				if Units == 'cm':
+					Units = 'cm/cm^2'
+				elif Units == 'in':
+					Units = 'in/in^2'		
+		else:
+			log.warning("[PPM]--{}--No size reference found for pixel per metric calculation".format(filename))
+			PixelsPerMetric = None
+			Units = None
+			ppm_proof = np.zeros_like(img)
+			cv2.putText(ppm_proof, "PPM module off", (int(500), int(500)), cv2.FONT_HERSHEY_SIMPLEX, 7, (0, 0, 255), 15)
+
+	else:
+		log.info("[PPM]--{}--Pixels per Metric module turned off".format(filename))
+		PixelsPerMetric = None
+		Units = None
+		ppm_proof = np.zeros_like(img)
+		cv2.putText(ppm_proof, "PPM module off", (int(500), int(500)), cv2.FONT_HERSHEY_SIMPLEX, 7, (0, 0, 255), 15)	
+
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	##############################  Color correction module  #################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -243,7 +294,7 @@ def main():
 		reff=cv2.imread(reff_fullpath)
 		color_proof, tar_chk, corrected, avg_tar_error, avg_trans_error, csv_field = clr.color_correct(filename, img, reff, args.debug)	#Run the color correction module
 
-	elif args.color_checker == "None":
+	elif args.color_checker != "None":
 		reff = None
 		log.info("[COLOR]--{}--No reference color checker provided. Starting color correction module using hardcoded values...".format(filename)) # Log
 		color_proof, tar_chk, corrected, avg_tar_error, avg_trans_error, csv_field = clr.color_correct(filename, img, reff, args.debug)	#Run the color correction module
@@ -277,47 +328,10 @@ def main():
 
 
 		if args.debug is True:
-			cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
-			cv2.resizeWindow('Pixels Per Metric: FOUND', 1000, 1000)
-			cv2.imshow('Pixels Per Metric: FOUND', img); cv2.waitKey(3000); cv2.destroyAllWindows()
+			cv2.namedWindow('[DEBUG] [PPM] Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
+			cv2.resizeWindow('[DEBUG] [PPM] Pixels Per Metric: FOUND', 1000, 1000)
+			cv2.imshow('[DEBUG] [PPM] Pixels Per Metric: FOUND', img); cv2.waitKey(3000); cv2.destroyAllWindows()
 
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-	##############################  PIXELS PER METRIC MODULE  ################################
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-	if args.pixelspermetric is not None:
-		PixelsPerMetric = None
-		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~PPM module Output
-		log.info("[PPM]--{}--Looking for solid color square to calculate pixels per metric...".format(filename))
-		PixelsPerMetric, ppm_proof = ppm.ppm_square(img, args.pixelspermetric[0])	#Run the pixels per metric module without color checker
-		
-		if PixelsPerMetric is not None:
-			log.info("[PPM]--{}--Found {} pixels per metric".format(filename, PixelsPerMetric))	
-			
-			if args.debug is True:
-				cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
-				cv2.resizeWindow('Pixels Per Metric: FOUND', 1000, 1000)
-				cv2.imshow('Pixels Per Metric: FOUND', ppm_proof); cv2.waitKey(3000); cv2.destroyAllWindows()
-
-		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ pixels per metric csv			
-			if args.no_save is False:		
-				csvname = out + 'pixelspermetric' +'.csv'
-				file_exists = os.path.isfile(csvname)
-				with open (csvname, 'a') as csvfile:
-					headers = ['Filename', 'Pixels Per Metric']
-					writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n',fieldnames=headers)
-					if not file_exists:
-						writer.writeheader()  # file doesn't exist yet, write a header	
-					writer.writerow({'Filename': filename, 'Pixels Per Metric': PixelsPerMetric})
-				log.info("[PPM]--{}--Saved pixels per metric to: {}pixelspermetric.csv".format(filename, out))			
-		else:
-			log.warning("[PPM]--{}--No size reference found for pixel per metric calculation".format(filename))
-			PixelsPerMetric = None
-
-	else:
-		log.info("[PPM]--{}--Pixels per Metric module turned off".format(filename))
-		PixelsPerMetric = None
-		ppm_proof = np.zeros_like(img)
-		cv2.putText(ppm_proof, "PPM module off", (int(500), int(500)), cv2.FONT_HERSHEY_SIMPLEX, 7, (0, 0, 255), 15)	
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	##################################  Find ears module  ####################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -332,27 +346,31 @@ def main():
 		channel = args.threshold[0]
 		threshold = args.threshold[1]
 		inv = args.threshold[2]
-		bkgrnd = thresh.thresh(img,channel,threshold, inv)									# Manually threshold the thing
-	
-
+		bkgrnd = utility.thresh(img,channel,threshold, inv, args.debug)									# Manually threshold the thing
 	
 	if args.debug is True:
-		cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
-		cv2.resizeWindow('Pixels Per Metric: FOUND', 1000, 1000)
-		cv2.imshow('Pixels Per Metric: FOUND', bkgrnd); cv2.waitKey(3000); cv2.destroyAllWindows()
+		cv2.namedWindow('[DEBUG] [EARS] Background Segmentation', cv2.WINDOW_NORMAL)
+		cv2.resizeWindow('[DEBUG] [EARS] Background Segmentation', 1000, 1000)
+		cv2.imshow('[DEBUG] [EARS] Background Segmentation', bkgrnd); cv2.waitKey(3000); cv2.destroyAllWindows()
+
+		
+	if args.ear_size is not None:
+		log.info("[EARS]--{}--Segmenting ears with custom size filter: Min Area: {}%, Max Area: {}%".format(filename, args.ear_size[0], args.ear_size[1]))
+		min_area = img_area*((args.ear_size[0])/100)
+		max_area = img_area*((args.ear_size[1])/100)
+	else:
+		log.info("[EARS]--{}--Segmenting ears with default size filter: Min Area: 1.5%, Max Area: 15%".format(filename))
+		min_area = img_area*0.0150
+		max_area = img_area*0.150
 
 	if args.ear_filter is not None:
-		log.info("[EARS]--{}--Segmenting ears with custom settings: Min Area: {}%, Max Area: {}%, 0.19 < Aspect Ratio < {}, Solidity < {}".format(filename, args.ear_filter[0], args.ear_filter[1], args.ear_filter[2], args.ear_filter[3]))
-		min_area = img_area*((args.ear_filter[0])/100)
-		max_area = img_area*((args.ear_filter[1])/100)
-		aspect_ratio = args.ear_filter[2]
-		solidity = args.ear_filter[3]
+		log.info("[EARS]--{}--Filtering ears with custom settings: 0.19 < Aspect Ratio < {}, Solidity < {}".format(filename, args.ear_filter[0], args.ear_filter[1], args.ear_filter[2], args.ear_filter[3]))
+		aspect_ratio = args.ear_filter[0]
+		solidity = args.ear_filter[1]
 	else:
-		min_area = img_area*0.010
-		max_area = img_area*0.150
 		aspect_ratio = 0.6
 		solidity = 0.983
-		log.info("[EARS]--{}--Segmenting ears with default settings: Min Area: {}%, Max Area: {}%, 0.19 < Aspect Ratio < {}, Solidity < {}".format(filename, min_area, max_area, aspect_ratio, solidity))
+		log.info("[EARS]--{}--Filtering ears with default settings: 0.19 < Aspect Ratio < 0.6, Solidity < 0.983".format(filename))
 	
 	filtered, ear_number = find_ears.filter(filename, bkgrnd, min_area, max_area, aspect_ratio, solidity)		# Run the filter module
 	log.info("[EARS]--{}--Found {} Ear(s) before clean up".format(filename, ear_number))
@@ -455,9 +473,9 @@ def main():
 	cv2.putText(ears_proof, "Found {} Ear(s)".format(number_of_ears), (int((img.shape[0]/1.5)), img.shape[0]-100), cv2.FONT_HERSHEY_SIMPLEX, 5.0, (200, 255, 255), 17)
 	
 	if args.debug is True:
-		cv2.namedWindow('[EARS][DEBUG] Segmentation after Filter', cv2.WINDOW_NORMAL)
-		cv2.resizeWindow('[EARS][DEBUG] Segmentation after Filter', 1000, 1000)
-		cv2.imshow('[EARS][DEBUG] Segmentation after Filter', ears_proof); cv2.waitKey(2000); cv2.destroyAllWindows()
+		cv2.namedWindow('[DEBUG] [EARS] Segmentation after Filter', cv2.WINDOW_NORMAL)
+		cv2.resizeWindow('[DEBUG] [EARS] Segmentation after Filter', 1000, 1000)
+		cv2.imshow('[DEBUG] [EARS] Segmentation after Filter', ears_proof); cv2.waitKey(3000); cv2.destroyAllWindows()
 
 
 	log.info("[EARS]--{}--Found {} Ear(s) after clean up".format(filename, number_of_ears))
@@ -481,9 +499,9 @@ def main():
 	ears_proof = cv2.vconcat([montages[0], ears_proof])
 
 	if args.no_proof is False or args.debug is True:											# Print proof with QR code
-		cv2.namedWindow('[PROOF]', cv2.WINDOW_NORMAL)
-		cv2.resizeWindow('[PROOF]', 1000, 1000)
-		cv2.imshow('[PROOF]', ears_proof); cv2.waitKey(3000); cv2.destroyAllWindows()
+		cv2.namedWindow('[EARS] Ear Segmentation Proof', cv2.WINDOW_NORMAL)
+		cv2.resizeWindow('[EARS] Ear Segmentation Proof', 1000, 1000)
+		cv2.imshow('[EARS] Ear Segmentation Proof', ears_proof); cv2.waitKey(3000); cv2.destroyAllWindows()
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Save proofs
 	if args.no_save is False:		
@@ -509,9 +527,9 @@ def main():
 		ear = ear_masks[r]
 		
 		if args.debug is True:
-			cv2.namedWindow('[SILK CLEAN UP]', cv2.WINDOW_NORMAL)
-			cv2.resizeWindow('[SILK CLEAN UP]', 1000, 1000)
-			cv2.imshow('[SILK CLEAN UP]', ear); cv2.waitKey(2000); cv2.destroyAllWindows() 
+			cv2.namedWindow('[DEBUG][EAR] Ear Before Clean Up', cv2.WINDOW_NORMAL)
+			cv2.resizeWindow('[DEBUG][EAR] Ear Before Clean Up', 1000, 1000)
+			cv2.imshow('[DEBUG][EAR] Ear Before Clean Up', ear); cv2.waitKey(3000); cv2.destroyAllWindows() 
 
 		_,_,r = cv2.split(ear)											# Split into it channel constituents
 		_,r = cv2.threshold(r, 0, 255, cv2.THRESH_OTSU)
@@ -552,13 +570,16 @@ def main():
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	##################################  Orient ears module  ##################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-		log.info('[EAR]--{}--Ear #{}: Checking ear orientation...'.format(filename, n))
-		ori_width = find_ears.rotate_ear(ear)
-		if ori_width[2] < ori_width[0]:
-			log.warning('[EAR]--{}--Ear #{}: Ear rotated'.format(filename, n))
-			ear = cv2.rotate(ear, cv2.ROTATE_180)	
+		if args.rotation is True:
+			log.info('[EAR]--{}--Ear #{}: Checking ear orientation...'.format(filename, n))
+			ori_width = find_ears.rotate_ear(ear)
+			if ori_width[2] < ori_width[0]:
+				log.warning('[EAR]--{}--Ear #{}: Ear rotated'.format(filename, n))
+				ear = cv2.rotate(ear, cv2.ROTATE_180)	
+			else:
+				log.info('[EAR]--{}--Ear #{}: Ear orientation is fine.'.format(filename, n))
 		else:
-			log.info('[EAR]--{}--Ear #{}: Ear orientation is fine.'.format(filename, n))	
+			log.info('[EAR]--{}--Ear #{}: Ear orientation turned off.'.format(filename, n))	
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	##################################  Save final ear masks  ################################
@@ -576,9 +597,9 @@ def main():
 			cv2.imwrite(destin, ear)
 
 		if args.debug is True:
-			cv2.namedWindow('[SILK CLEAN UP]', cv2.WINDOW_NORMAL)
-			cv2.resizeWindow('[SILK CLEAN UP]', 1000, 1000)
-			cv2.imshow('[SILK CLEAN UP]', ear); cv2.waitKey(2000); cv2.destroyAllWindows() 
+			cv2.namedWindow('[DEBUG][EAR] After Silk, Clean Up, and Rot', cv2.WINDOW_NORMAL)
+			cv2.resizeWindow('[DEBUG][EAR] After Silk, Clean Up, and Rot', 1000, 1000)
+			cv2.imshow('[DEBUG][EAR] After Silk, Clean Up, and Rot', ear); cv2.waitKey(3000); cv2.destroyAllWindows() 
 
 		final_ear_masks.append(ear)
 		n = n + 1
@@ -595,102 +616,246 @@ def main():
 		Ear_Area, Ear_Box_Area, Ear_Box_Length, Ear_Extreme_Length, Ear_Box_Width, newWidths, max_Width, MA, ma, perimeters, Convexity, Solidity, Convexity_polyDP, Taper, Taper_Convexity, Taper_Solidity, Taper_Convexity_polyDP, Widths_Sdev, Cents_Sdev, ear_proof, canvas, wid_proof = features.extract_feats(ear, PixelsPerMetric)
 		log.info('[EAR]--{}--Ear #{}: Done extracting basic morphological features'.format(filename, n))
 
-		_,_,r = cv2.split(ear)											#Split into it channel constituents
-		_,r = cv2.threshold(r, 0, 255, cv2.THRESH_OTSU)
-		hsv = cv2.cvtColor(ear, cv2.COLOR_BGR2HSV)						#Convert into HSV color Space	
-		hsv[r == 0] = 0
-		_,s,_ = cv2.split(hsv)											#Split into it channel constituents	
-		chnnl = cv2.cvtColor(s,cv2.COLOR_GRAY2RGB)
-		mskd,_ = cv2.threshold(chnnl[chnnl !=  0],1,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU); 
-		pixels = np.float32(chnnl[chnnl !=  0].reshape(-1, 3))
-		Blue, Red, Green, Hue, Sat, Vol, Light, A_chnnl, B_chnnl = features.dominant_cols(chnnl, pixels)
-
-
-		uncob = ear.copy()
-		bw = r.copy()
-		tip = r.copy()
-		bottom = r.copy()
-		cob = r.copy()
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	############################# Cob Segemntation Module ####################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-		if args.tip is not None:
-			#[Tip percent]", "[Contrast]", "[Threshold]", "[Close]"
-			tip_percent = args.tip[0]
-			contrast = args.tip[1]
-			threshold = args.tip[2]
-			close = args.tip[3]
-		
-			if args.tip[0] == 0 and args.tip[1] == 0 and args.tip[2] == 0 and args.tip[3] == 0:
-				if mskd < 80 and Blue > 140:
-					log.warning("[EAR]--{}--Ear #{}: Detected white ear...segmenting ear tip with special white ear settings...".format(filename, n))
-					#white ear automatic trigger
-					tip = cob_shank_segmentation.top_seg(ear, PixelsPerMetric, chnnl, mskd, 50, 10, 0.95, 3, 5) 
+		_,_,red = cv2.split(ear)											#Split into it channel constituents
+		_,red = cv2.threshold(red, 0, 255, cv2.THRESH_OTSU)
+		hsv = cv2.cvtColor(ear, cv2.COLOR_BGR2HSV)						#Convert into HSV color Space	
+		hsv[red == 0] = 0
+		h,s,_ = cv2.split(hsv)
+		otsu_s,_ = cv2.threshold(s[s !=  0],1,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU); #spcial case diagnostic
+
+		tip = np.zeros_like(red)
+		bottom = np.zeros_like(red)
+		red_tip = red.copy()
+		tip_test = red.copy()
+		red_bottom = red.copy()
+		bottom_test = red.copy()
+
+		if args.debug is True:
+			cv2.namedWindow('[DEBUG][EAR] Tip Thresholding Channel Hue', cv2.WINDOW_NORMAL)
+			cv2.resizeWindow('[DEBUG][EAR] Tip Thresholding Channel Hue', 1000, 1000)
+			cv2.imshow('[DEBUG][EAR] Tip Thresholding Channel Hue', h); cv2.waitKey(3000); cv2.destroyAllWindows()
+			cv2.namedWindow('[DEBUG][EAR] Tip Thresholding Channel Sat', cv2.WINDOW_NORMAL)
+			cv2.resizeWindow('[DEBUG][EAR] Tip Thresholding Channel Sat', 1000, 1000)
+			cv2.imshow('[DEBUG][EAR] Tip Thresholding Channel Sat', s); cv2.waitKey(3000); cv2.destroyAllWindows()			
+
+		### TIP SEGMENTATION		
+		if args.tip is not None:		
+			if args.tip == []:
+				if otsu_s < 70:
+					chnnl=cv2.bitwise_not(h)
+					tip, otsu = cob_seg.otsu(chnnl)
+					log.warning("[EAR]--{}--Ear #{}: Detected white ear {}...thresholding ear tip with hue channel...".format(filename, n, otsu_s))
+					log.info("[EAR]--{}--Ear #{}: Segmenting ear tip with adaptive otsu approach on hue channel...".format(filename, n))
+					log.info("[EAR]--{}--Ear #{}: Otsu found {} threshold".format(filename, n, otsu))
+					tip = cv2.bitwise_not(tip) #invert
+					if args.debug is True:
+						cv2.namedWindow('[DEBUG][EAR] Tip Thresholding', cv2.WINDOW_NORMAL)
+						cv2.resizeWindow('[DEBUG][EAR] Tip Thresholding', 1000, 1000)
+						cv2.imshow('[DEBUG][EAR] Tip Thresholding', tip); cv2.waitKey(3000); cv2.destroyAllWindows() 
+
+					tip_percent = 50
+					dialate = 1
+					extent = 3
+					tip = cob_seg.top_modifier(ear, tip, tip_percent, dialate, extent, args.debug)	
+					tip_test = cob_seg.top_modifier(ear, red_tip, tip_percent, dialate, extent, False)
+					log.info("[EAR]--{}--Ear #{}: processing tip with {} tip percent, {} dialate, and {} extent".format(filename, n, tip_percent, dialate, extent))				
+
 				else:
-					log.info("[EAR]--{}--Ear #{}: Segmenting ear tip with default settings...".format(filename, n))
-					#k means default	
-					tip = cob_shank_segmentation.top_seg(ear, PixelsPerMetric, chnnl, mskd, 50, 15, None, None, 5) 
+					chnnl = s.copy()
+					_, otsu = cob_seg.otsu(chnnl)					
+					tip = cob_seg.manual(chnnl, otsu*0.8)
+					log.info("[EAR]--{}--Ear #{}: Segmenting ear tip with adaptive otsu approach on saturation channel...".format(filename, n))
+					log.info("[EAR]--{}--Ear #{}: Otsu found {} threshold".format(filename, n, otsu))
+					tip = cv2.bitwise_not(tip) #invert			
+					if args.debug is True:
+						cv2.namedWindow('[DEBUG][EAR] Tip Thresholding', cv2.WINDOW_NORMAL)
+						cv2.resizeWindow('[DEBUG][EAR] Tip Thresholding', 1000, 1000)
+						cv2.imshow('[DEBUG][EAR] Tip Thresholding', tip); cv2.waitKey(3000); cv2.destroyAllWindows() 
+					tip_percent = 50
+					dialate = 1
+					extent = 0
+					tip = cob_seg.top_modifier(ear, tip, tip_percent, dialate, extent, args.debug)	
+					tip_test = cob_seg.top_modifier(ear, red_tip, tip_percent, dialate, extent, False)
+					log.info("[EAR]--{}--Ear #{}: processing tip with {} tip percent, {} dialate, and {} extent".format(filename, n, tip_percent, dialate, extent))	
 			else:
-				log.info("[EAR]--{}--Ear #{}: Segmenting eat tip with custom settings...".format(filename, n))
-				tip = cob_shank_segmentation.top_seg(ear, PixelsPerMetric, chnnl, mskd, tip_percent, contrast, threshold, close, 5) 
+				if args.tip[0] == 'h':
+					chnnl=cv2.bitwise_not(h)
+				else:
+					chnnl = s.copy()
+				tip = cob_seg.manual(chnnl, args.tip[1])
+				log.info("[EAR]--{}--Ear #{}: Segmenting ear tip with custom thresholding in {} channel at intensitiy of {}...".format(filename, n, args.tip[0], args.tip[1]))
+				tip = cv2.bitwise_not(tip) #invert
+				if args.debug is True:
+					cv2.namedWindow('[DEBUG][EAR] Tip Thresholding', cv2.WINDOW_NORMAL)
+					cv2.resizeWindow('[DEBUG][EAR] Tip Thresholding', 1000, 1000)
+					cv2.imshow('[DEBUG][EAR] Tip Thresholding', tip); cv2.waitKey(3000); cv2.destroyAllWindows() 
+				tip_percent = args.tip[2]
+				dialate = args.tip[3]
+				extent = args.tip[4]
+				tip = cob_seg.top_modifier(ear, tip, tip_percent, dialate, extent, args.debug)	
+				tip_test = cob_seg.top_modifier(ear, red_tip, tip_percent, dialate, extent, False)
+				log.info("[EAR]--{}--Ear #{}: processing tip with custom settings: {} tip percent, {} dialate, and {} extent".format(filename, n, tip_percent, dialate, extent))	
+
 		else:
 			log.info("[EAR]--{}--Ear #{}: Ear tip segmentation turned off".format(filename, n))
-	
-		if args.bottom is not None:
-			#[bottom percent]", "[Contrast]", "[Threshold]", "[Close]"
-			bottom_percent = args.bottom[0]
-			contrast = args.bottom[1]
-			threshold = args.bottom[2]
-			close = args.bottom[3]
 
-			if args.bottom[0] == 0 and args.bottom[1] == 0 and args.bottom[2] == 0 and args.bottom[3] == 0:
-				if mskd < 80 and Blue > 140:
-					log.warning("[EAR]--{}--Ear #{}: Detected white ear...segmenting ear bottom with special white ear settings...".format(filename, n))
-					#white ear automatic trigger
-					bottom = cob_shank_segmentation.bottom_seg(ear, PixelsPerMetric, chnnl, mskd, 75, 5, 0.85, None, 5) 
+		### BOTTOM SEGMENTATION		
+		if args.bottom is not None:		
+			if args.bottom == []:
+				if otsu_s < 70:
+					chnnl=cv2.bitwise_not(h)
+					bottom, otsu = cob_seg.otsu(chnnl)
+					log.warning("[EAR]--{}--Ear #{}: Detected white ear {}...thresholding ear bottom with hue channel...".format(filename, n, otsu_s))
+					log.info("[EAR]--{}--Ear #{}: Segmenting ear bottom with adaptive otsu approach on hue channel...".format(filename, n))
+					log.info("[EAR]--{}--Ear #{}: Otsu found {} threshold".format(filename, n, otsu))
+
+					bottom = cv2.bitwise_not(bottom) #invert
+					if args.debug is True:
+						cv2.namedWindow('[DEBUG][EAR] bottom Thresholding', cv2.WINDOW_NORMAL)
+						cv2.resizeWindow('[DEBUG][EAR] bottom Thresholding', 1000, 1000)
+						cv2.imshow('[DEBUG][EAR] bottom Thresholding', bottom); cv2.waitKey(3000); cv2.destroyAllWindows() 
+
+					bottom_percent = 80
+					dialate = 1
+					extent = 5
+					bottom = cob_seg.bottom_modifier(ear, bottom, bottom_percent, dialate, extent, args.debug)
+					bottom_test = cob_seg.bottom_modifier(ear, red_bottom, bottom_percent, dialate, extent, False)
+					log.info("[EAR]--{}--Ear #{}: processing bottom with {} bottom percent, {} dialate, and {} extent".format(filename, n, bottom_percent, dialate, extent))
 				else:
-					log.info("[EAR]--{}--Ear #{}: Segmenting ear bottom with default settings...".format(filename, n))
-					#k means default	
-					bottom = cob_shank_segmentation.bottom_seg(ear, PixelsPerMetric, chnnl, mskd, 75, 15, None, None, 5)					 
+					chnnl = s.copy()
+					_, otsu = cob_seg.otsu(chnnl)					
+					bottom = cob_seg.manual(chnnl, otsu*0.8)
+					log.info("[EAR]--{}--Ear #{}: Segmenting ear bottom with adaptive otsu approach on saturation channel...".format(filename, n))
+					log.info("[EAR]--{}--Ear #{}: Otsu found {} threshold".format(filename, n, otsu))
+					bottom = cv2.bitwise_not(bottom) #invert
+					if args.debug is True:
+						cv2.namedWindow('[DEBUG][EAR] bottom Thresholding', cv2.WINDOW_NORMAL)
+						cv2.resizeWindow('[DEBUG][EAR] bottom Thresholding', 1000, 1000)
+						cv2.imshow('[DEBUG][EAR] bottom Thresholding', bottom); cv2.waitKey(3000); cv2.destroyAllWindows() 
+
+					bottom_percent = 80
+					dialate = 1
+					extent = 0
+					bottom = cob_seg.bottom_modifier(ear, bottom, bottom_percent, dialate, extent, args.debug)	
+					bottom_test = cob_seg.bottom_modifier(ear, red_bottom, bottom_percent, dialate, extent, False)
+					log.info("[EAR]--{}--Ear #{}: processing bottom with {} bottom percent, {} dialate, and {} extent".format(filename, n, bottom_percent, dialate, extent))
 			else:
-				log.info("[EAR]--{}--Ear #{}: Segmenting eat bottom with custom settings...".format(filename, n))
-				bottom = cob_shank_segmentation.bottom_seg(ear, PixelsPerMetric, chnnl, mskd, bottom_percent, contrast, threshold, close, 5) 
+				if args.bottom[0] == 'h':
+					chnnl=cv2.bitwise_not(h)
+				else:
+					chnnl = s.copy()
+				bottom = cob_seg.manual(chnnl, args.bottom[1])
+				log.info("[EAR]--{}--Ear #{}: Segmenting ear bottom with custom thresholding in {} channel at intensitiy of {}...".format(filename, n, args.bottom[0], args.bottom[1]))
+				bottom = cv2.bitwise_not(bottom) #invert
+				if args.debug is True:
+					cv2.namedWindow('[DEBUG][EAR] bottom Thresholding', cv2.WINDOW_NORMAL)
+					cv2.resizeWindow('[DEBUG][EAR] bottom Thresholding', 1000, 1000)
+					cv2.imshow('[DEBUG][EAR] bottom Thresholding', bottom); cv2.waitKey(3000); cv2.destroyAllWindows() 
+
+				bottom_percent = args.bottom[2]
+				dialate = args.bottom[3]
+				extent = args.bottom[4]
+				bottom = cob_seg.bottom_modifier(ear, bottom, bottom_percent, dialate, extent, args.debug)	
+				bottom_test = cob_seg.bottom_modifier(ear, red_bottom, bottom_percent, dialate, extent, False)
+				log.info("[EAR]--{}--Ear #{}: Processing bottom with custom settings: {} bottom percent, {} dialate, and {} extent".format(filename, n, bottom_percent, dialate, extent))					
 		else:
 			log.info("[EAR]--{}--Ear #{}: Ear bottom segmentation turned off".format(filename, n))
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	############################# Cob/shank/kernel Analysis Module ###########################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+		if cv2.countNonZero(tip_test) > 0:
+			if (cv2.countNonZero(tip)/cv2.countNonZero(tip_test)) > 0.999 :
+				tip = np.zeros_like(red)
 
-		if cv2.countNonZero(bottom) != cv2.countNonZero(tip):
-			log.info("[EAR]--{}--Ear #{}: Extracting kernel features...".format(filename, n))
+		if cv2.countNonZero(bottom_test) > 0:
+			if (cv2.countNonZero(bottom)/cv2.countNonZero(bottom_test)) > 0.999:
+				bottom = np.zeros_like(red)
 
-			Tip_Area, Bottom_Area, Krnl_Area, Kernel_Length, Krnl_Convexity, Tip_Fill, Bottom_Fill, Krnl_Fill, krnl_proof, cob, uncob, Blue, Red, Green, Hue, Sat, Vol, Light, A_chnnl, B_chnnl = features.krnl_feats(ear, tip, bottom, PixelsPerMetric)
-
-			log.info("[EAR]--{}--Ear #{}: Done extracting kernel features".format(filename, n))
+		log.info("[EAR]--{}--Ear #{}: Extracting kernel features...".format(filename, n))
+		Tip_Area, Bottom_Area, Krnl_Area, Kernel_Length, Krnl_Convexity, Tip_Fill, Bottom_Fill, Krnl_Fill, krnl_proof, cob, uncob, Blue, Red, Green, Hue, Sat, Vol, Light, A_chnnl, B_chnnl = features.krnl_feats(ear, tip, bottom, PixelsPerMetric)
+		log.info("[EAR]--{}--Ear #{}: Done extracting kernel features".format(filename, n))
 			
-			Krnl_proof = ear.copy()
+		Krnl_proof = ear.copy()
+		Krnl_proof[cob == 255] = [0,0,255]
 
-			Krnl_proof[uncob == 0] = [0,0,255]
-			Krnl_proof[r == 0] = [0,0,0]
+		if args.debug is True:
+			cv2.namedWindow('[DEBUG][EAR] Cob Segmentation', cv2.WINDOW_NORMAL)
+			cv2.resizeWindow('[DEBUG][EAR] Cob Segmentation', 1000, 1000)
+			cv2.imshow('[DEBUG][EAR] Cob Segmentation', Krnl_proof); cv2.waitKey(3000); cv2.destroyAllWindows() 
 
-		else:
-			Krnl_proof = ear.copy()
-			Tip_Area = Bottom_Area = Krnl_Area = Kernel_Length = Krnl_Convexity =  Tip_Fill = Bottom_Fill = Krnl_Fill = None 
+			cv2.namedWindow('[DEBUG][EAR] Dominant Color', cv2.WINDOW_NORMAL)
+			cv2.resizeWindow('[DEBUG][EAR] Dominant Color', 1000, 1000)
+			cv2.imshow('[DEBUG][EAR] Dominant Color', krnl_proof); cv2.waitKey(3000); cv2.destroyAllWindows() 
+
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	################################## KRN Module ###########################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+		if args.kernel_row_number is True:
+			log.info("[EAR]--{}--Ear #{}: KRN module turned on. Extracting number of kernel peaks and median kernel width...".format(filename, n))
+			diff_pre_consensus, diff_post_consensus, num_peaks, krn_proof = krn.krn(ear, args.debug)
+			
+			if args.debug is True:
+				cv2.namedWindow('[DEBUG][EAR] Cob Segmentation', cv2.WINDOW_NORMAL)
+				cv2.resizeWindow('[DEBUG][EAR] Cob Segmentation', 1000, 1000)
+				cv2.imshow('[DEBUG][EAR] Cob Segmentation', krn_proof); cv2.waitKey(3000); cv2.destroyAllWindows() 
 
+			Number_of_Peaks = num_peaks
+			if PixelsPerMetric is not None:
+				diff_post_consensus = diff_post_consensus / (PixelsPerMetric)
+			Median_Kernel_Width = diff_post_consensus
+			log.info("[EAR]--{}--Ear #{}: Using median kernel width and radius to predict KRN...".format(filename, n))
+			inside, centa, areasec, areacirc, KRN = utility.circ((Ear_Box_Width/2), diff_post_consensus)
+			log.info("[EAR]--{}--Ear #{}: KRN analysis done.".format(filename, n))
+		else:
+			KRN = None
+			Median_Kernel_Width = None
+			Number_of_Peaks = None
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	################################## Grading Module ########################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+		if args.usda_grade is True:
+			log.info("[EAR]--{}--Ear #{}: Using ear features to determine USDA grade...(requires ppm flag)".format(filename, n))
+			if args.pixelspermetric[1] == 'cm':
+				Facy_Len = 12.7
+				No1_Len = 10.16
+			elif args.pixelspermetric[1] == 'in':
+				Facy_Len = 5
+				No1_Len = 4
 
+			#Len
+			if Ear_Box_Length >= Facy_Len:
+				USDA_Grade_Len = "Fancy"
+			elif Ear_Box_Length >= No1_Len:
+				USDA_Grade_Len = "No.1"
+			else:
+				USDA_Grade_Len = "Off Grade"
 
+			#Fill #this technically should be length ~~~ratio~~~
+			if Tip_Fill >= 0.875:
+				USDA_Grade_Fill = "Well Filled"
+			elif Tip_Fill >= 0.792:
+				USDA_Grade_Fill = "Moderately Filled"
+			else:
+				USDA_Grade_Fill = "Poorly Filled"
+			log.info("[EAR]--{}--Ear #{}: USDA graded.".format(filename, n))
+		else:
+			log.info("[EAR]--{}--Ear #{}: USDA grading turned off.".format(filename, n))
+			USDA_Grade_Len = None
+			USDA_Grade_Fill = None
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	##################################### Proofs  ############################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 		canvas = cv2.cvtColor(canvas,cv2.COLOR_GRAY2RGB)
-		ear_proof = cv2.hconcat([canvas, ear_proof, wid_proof, Krnl_proof])
+		ear_proof = cv2.hconcat([canvas, ear_proof, wid_proof, Krnl_proof, krnl_proof])
+
+		if args.kernel_row_number is True:
+			dim = (krnl_proof.shape[1], krnl_proof.shape[0])
+			krn_proof = cv2.resize(krn_proof, dim, interpolation = cv2.INTER_AREA)
+			ear_proof = cv2.hconcat([ear_proof, krn_proof])
 
 		if args.no_save is False:
 			destin = "{}".format(out) + "03_Ear_Proofs/"
@@ -705,9 +870,9 @@ def main():
 			cv2.imwrite(destin, ear_proof)
 
 		if args.no_proof is False or args.debug is True:
-			cv2.namedWindow('[SILK CLEAN UP]', cv2.WINDOW_NORMAL)
-			cv2.resizeWindow('[SILK CLEAN UP]', 1000, 1000)
-			cv2.imshow('[SILK CLEAN UP]', ear_proof); cv2.waitKey(2000); cv2.destroyAllWindows()
+			cv2.namedWindow('[Ear] Final Proof', cv2.WINDOW_NORMAL)
+			cv2.resizeWindow('[Ear] Final Proof', 1000, 1000)
+			cv2.imshow('[Ear] Final Proof', ear_proof); cv2.waitKey(3000); cv2.destroyAllWindows()
 
 		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 		##################################### Features CSV  ######################################
@@ -717,27 +882,28 @@ def main():
 			csvname = out + 'features' +'.csv'
 			file_exists = os.path.isfile(csvname)
 			with open (csvname, 'a') as csvfile:
-				headers = ['Filename', 'Ear Number', 'Ear_Area', 'Ear_Box_Area', 'Ear_Box_Length', 'Ear_Extreme_Length', 'Ear_Box_Width', 'Max_Width', 'MA_Ellipse', 'ma_Ellipse', 'Perimeter', 
+				headers = ['Filename', 'Units', 'Ear Number', 'Ear_Area', 'Ear_Box_Area', 'Ear_Box_Length', 'Ear_Extreme_Length', 'Ear_Box_Width', 'Max_Width', 'MA_Ellipse', 'ma_Ellipse', 'Perimeter', 
 							'Convexity', 'Solidity', 'Convexity_polyDP', 'Taper', 'Taper_Convexity', 'Taper_Solidity', 'Taper_Convexity_polyDP', 
 							'Widths_Sdev', 'Curvature', 'Tip_Area', 'Bottom_Area', 'Krnl_Area', 'Kernel_Length', 'Krnl_Convexity', 'Tip_Fill', 
-							'Bottom_Fill', 'Krnl_Fill', 'Blue', 'Red', 'Green', 'Hue', 'Sat', 'Vol', 'Light', 'A_chnnl', 'B_chnnl']  
+							'Bottom_Fill', 'Krnl_Fill', 'KRN', 'Median_Kernel_Width', 'Number_of_Peaks', 'USDA_Grade_Len', 'USDA_Grade_Fill' ,'Blue', 'Red', 'Green', 'Hue', 'Sat', 'Vol', 'Light', 'A_chnnl', 'B_chnnl']  
 
 
 				writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n',fieldnames=headers)
 				if not file_exists:
 					writer.writeheader()  # file doesn't exist yet, write a header	
 
-				writer.writerow({'Filename': filename,'Ear Number': n, 'Ear_Area': Ear_Area, 'Ear_Box_Area': Ear_Box_Area,
+				writer.writerow({'Filename': filename, 'Units': Units, 'Ear Number': n, 'Ear_Area': Ear_Area, 'Ear_Box_Area': Ear_Box_Area,
 								 'Ear_Box_Length': Ear_Box_Length, 'Ear_Extreme_Length': Ear_Extreme_Length, 'Ear_Box_Width': Ear_Box_Width,
 								 'Max_Width': max_Width, 'MA_Ellipse': MA, 'ma_Ellipse': ma, 'Perimeter': perimeters,
 								 'Convexity': Convexity , 'Solidity': Solidity, 'Convexity_polyDP': Convexity_polyDP, 'Taper': Taper,
 								 'Taper_Convexity': Taper_Convexity, 'Taper_Solidity': Taper_Solidity, 'Taper_Convexity_polyDP': Taper_Convexity_polyDP, 
 							     'Widths_Sdev': Widths_Sdev, 'Curvature': Cents_Sdev, 'Tip_Area': Tip_Area, 'Bottom_Area': Bottom_Area, 
 							     'Krnl_Area': Krnl_Area, 'Kernel_Length': Kernel_Length , 'Krnl_Convexity': Krnl_Convexity, 'Tip_Fill': Tip_Fill, 
-								 'Bottom_Fill': Bottom_Fill, 'Krnl_Fill': Krnl_Fill , 'Blue': Blue , 'Red': Red , 'Green': Green , 'Hue': Hue, 'Sat': Sat,
+								 'Bottom_Fill': Bottom_Fill, 'Krnl_Fill': Krnl_Fill , 'KRN': KRN, 'Median_Kernel_Width': Median_Kernel_Width, 'Number_of_Peaks':Number_of_Peaks,
+								 'USDA_Grade_Len': USDA_Grade_Len, 'USDA_Grade_Fill': USDA_Grade_Fill, 'Blue': Blue , 'Red': Red , 'Green': Green , 'Hue': Hue, 'Sat': Sat,
 								 'Vol': Vol , 'Light': Light , 'A_chnnl': A_chnnl , 'B_chnnl': B_chnnl})
 
-		log.info("[EAR]--{}--Ear #{}: Saved features to: {}features.csv".format(filename, n, out))
+			log.info("[EAR]--{}--Ear #{}: Saved features to: {}features.csv".format(filename, n, out))
 		n = n + 1
 	log.info("[EAR]--{}--Collected all ear features.".format(filename))		
 
