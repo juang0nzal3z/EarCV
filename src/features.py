@@ -104,6 +104,8 @@ def extract_feats(ear, PixelsPerMetric):
 		canvas_perimeters = cv2.arcLength(cs,True); canvas_hulls = cv2.convexHull(cs); canvas_hullperimeters = cv2.arcLength(hulls,True)
 		if canvas_perimeters != 0:
 			Convexity_polyDP = canvas_hullperimeters/canvas_perimeters
+		else:
+			Convexity_polyDP
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 ########################################## Taper #########################################
@@ -116,8 +118,16 @@ def extract_feats(ear, PixelsPerMetric):
 	for cs in cntss:
 		Taper_Area = cv2.contourArea(cs)
 		Taper_perimeters = cv2.arcLength(cs,True); Taper_hulls = cv2.convexHull(cs); Taper_hull_areas = cv2.contourArea(hulls); Taper_hullperimeters = cv2.arcLength(hulls,True)
-		Taper_Convexity = Taper_hullperimeters/Taper_perimeters
-		Taper_Solidity = float(Taper_Area)/Taper_hull_areas
+
+		if Taper_perimeters != 0:
+			Taper_Convexity = Taper_hullperimeters/Taper_perimeters
+		else:
+			Taper_Convexity = None
+		
+		if Taper_hull_areas != 0:
+			Taper_Solidity = float(Taper_Area)/Taper_hull_areas
+		else:
+			Taper_Solidity = None
 
 	taper_canvas = canvas.copy()
 	taper_canvas = utility.cnctfill(taper_canvas)
@@ -130,6 +140,8 @@ def extract_feats(ear, PixelsPerMetric):
 		canvas_perimeters = cv2.arcLength(cs,True); canvas_hulls = cv2.convexHull(cs); canvas_hullperimeters = cv2.arcLength(canvas_hulls,True)
 		if canvas_perimeters != 0:
 			Taper_Convexity_polyDP = canvas_hullperimeters/canvas_perimeters
+		else:
+			Taper_Convexity_polyDP = None
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 ######################################### WIDTHS #########################################

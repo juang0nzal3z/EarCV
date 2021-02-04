@@ -59,7 +59,7 @@ def filter(filename, binary, min_area, max_area, aspect_ratio, solidity):
 				rat = round(width_i/height_i, 2)
 			else:
 				rat = round(height_i/width_i, 2)
-			if 0.19 < rat < aspect_ratio and ear_solidity < solidity: 
+			if 0.1 < rat < aspect_ratio and 0.1 < ear_solidity < solidity: 
 				cv2.drawContours(mask, [c], -1, (255), -1)
 				i = i+1
 

@@ -348,12 +348,6 @@ def main():
 		inv = args.threshold[2]
 		bkgrnd = utility.thresh(img,channel,threshold, inv, args.debug)									# Manually threshold the thing
 	
-	if args.debug is True:
-		cv2.namedWindow('[DEBUG] [EARS] Background Segmentation', cv2.WINDOW_NORMAL)
-		cv2.resizeWindow('[DEBUG] [EARS] Background Segmentation', 1000, 1000)
-		cv2.imshow('[DEBUG] [EARS] Background Segmentation', bkgrnd); cv2.waitKey(3000); cv2.destroyAllWindows()
-
-		
 	if args.ear_size is not None:
 		log.info("[EARS]--{}--Segmenting ears with custom size filter: Min Area: {}%, Max Area: {}%".format(filename, args.ear_size[0], args.ear_size[1]))
 		min_area = img_area*((args.ear_size[0])/100)
@@ -364,44 +358,37 @@ def main():
 		max_area = img_area*0.150
 
 	if args.ear_filter is not None:
-		log.info("[EARS]--{}--Filtering ears with custom settings: 0.19 < Aspect Ratio < {}, Solidity < {}".format(filename, args.ear_filter[0], args.ear_filter[1], args.ear_filter[2], args.ear_filter[3]))
+		log.info("[EARS]--{}--Filtering ears with custom settings: 0.19 < Aspect Ratio < {}, Solidity < {}".format(filename, args.ear_filter[0], args.ear_filter[1]))
 		aspect_ratio = args.ear_filter[0]
 		solidity = args.ear_filter[1]
 	else:
 		aspect_ratio = 0.6
 		solidity = 0.983
-		log.info("[EARS]--{}--Filtering ears with default settings: 0.19 < Aspect Ratio < 0.6, Solidity < 0.983".format(filename))
+		log.info("[EARS]--{}--Filtering ears with default settings: 0.19 < Aspect Ratio < 0.6, 0.74 < Solidity < 0.983".format(filename))
 	
 	filtered, ear_number = find_ears.filter(filename, bkgrnd, min_area, max_area, aspect_ratio, solidity)		# Run the filter module
+
 	log.info("[EARS]--{}--Found {} Ear(s) before clean up".format(filename, ear_number))
 
 	if ear_number == 0:									# Is the image path valid?
 		log.warning("[ERROR]--{}--No ears found...aborting".format(fullpath)) # Log
 		raise Exception	
 
-	cov = None
-	cov = find_ears.calculate_area_cov(filtered, cov)																#Calculate area coeficient of variance
-	log.info("[CLNUP]--{}--Area Coefficent of Variance: {}".format(filename, cov))
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	##################################  Clean-Up Module  ####################################
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-
-	if cov is None:
-		log.info("[CLNUP]--{}--Cannot calculate Coefficent of Variance on single ear".format(filename))
-	
-	elif cov > 0.35:
-		log.warning("[CLNUP]--{}--COV above 0.35 has triggered default ear clean-up module".format(filename))
-		max_cov = 0.35
-		max_iterations = 10
-		i = 1
-		while cov > max_cov  and i <= max_iterations:
-			log.info("[CLNUP]--{}--Ear clean-up module: Iterate up to {} times or until area COV < {}. Current COV: {} and iteration {}".format(filename, max_iterations, max_cov, round(cov, 3), i))
-			mask = cv2.morphologyEx(filtered, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (i,i)), iterations=i)
-			filtered, ear_number = find_ears.filter(filename, mask, min_area, max_area, aspect_ratio, solidity)		# Run the filter module
-			cov = find_ears.calculate_area_cov(filtered, cov)																# Calculate area coeficient of variance			
-			i = i+1
-		log.info("[CLNUP]--{}--Ear clean-up module finished. Final Area COV--{}".format(filename, cov))
-
-	elif args.ear_cleanup is not None:
+	if args.ear_cleanup != "None" and args.ear_cleanup != "":
 		log.info("[CLNUP]--{}--Ear clean-up module with custom settings".format(filename))
+
+		cov = None
+		cov = find_ears.calculate_area_cov(filtered, cov)																#Calculate area coeficient of variance
+
+		if cov is None:
+			log.info("[CLNUP]--{}--Cannot calculate Coefficent of Variance on single ear".format(filename))
+		else:
+			log.info("[CLNUP]--{}--Area Coefficent of Variance: {}".format(filename, cov))
+		
 		max_cov = args.ear_cleanup[0]	
 		max_iterations = args.ear_cleanup[1]
 		i = 1
@@ -412,10 +399,37 @@ def main():
 			cov = find_ears.calculate_area_cov(filtered)																# Calculate area coeficient of variance			
 			i = i+1
 		log.info("[CLNUP]--{}--Ear clean-up module finished. Final Area COV--{}".format(filename, cov))
-	else:
-		log.info("[CLNUP]--{}--Area COV under threshold. Ear clean-up module turned off.".format(filename))
 
-	
+	elif args.color_checker != "None":
+		cov_default_tresh = 0.30
+		log.info("[CLNUP]--{}--Ear clean-up module turned on with default threshold of {}".format(filename, cov_default_tresh))
+
+		cov = None
+		cov = find_ears.calculate_area_cov(filtered, cov)																#Calculate area coeficient of variance
+
+		if cov is None:
+			log.info("[CLNUP]--{}--Cannot calculate Coefficent of Variance on single ear".format(filename))
+		else:
+			log.info("[CLNUP]--{}--Area Coefficent of Variance: {}".format(filename, cov))
+
+		if cov > cov_default_tresh:
+			log.warning("[CLNUP]--{}--COV {} is above default threshold {} has triggered default ear clean-up module".format(filename, cov, cov_default_tresh))
+			max_cov = 0.30
+			max_iterations = 10
+			i = 1
+			while cov > max_cov  and i <= max_iterations:
+				log.info("[CLNUP]--{}--Ear clean-up module: Iterate up to {} times or until area COV < {}. Current COV: {} and iteration {}".format(filename, max_iterations, max_cov, round(cov, 3), i))
+				mask = cv2.morphologyEx(filtered, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (i,i)), iterations=i)
+				filtered, ear_number = find_ears.filter(filename, mask, min_area, max_area, aspect_ratio, solidity)		# Run the filter module
+				cov = find_ears.calculate_area_cov(filtered, cov)																# Calculate area coeficient of variance			
+				i = i+1
+			log.info("[CLNUP]--{}--Ear clean-up module finished. Final Area COV--{}".format(filename, cov))
+		else:
+			log.info("[CLNUP]--{}--Area COV under threshold. Ear clean-up module turned off.".format(filename))
+	else:
+		log.info("[CLNUP]--{}--Ear clean-up module turned off.".format(filename))
+
+
 	if ear_number == 0:									# Is the image path valid?
 		log.warning("[ERROR]--{}--No ears found after clean up...aborting".format(fullpath)) # Log
 		raise Exception	
@@ -450,6 +464,7 @@ def main():
 		dst_pts_i = np.array([[0, height_i-1],[0, 0],[width_i-1, 0],[width_i-1, height_i-1]], dtype="float32")
 		M_i = cv2.getPerspectiveTransform(src_pts_i, dst_pts_i)
 		ear = cv2.warpPerspective(ears, M_i, (width_i, height_i))
+
 		height_i = ear.shape[0]
 		width_i = ear.shape[1]
 		if height_i > width_i:
@@ -519,53 +534,83 @@ def main():
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	##################################  Clean silks module  ##################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-
-	log.info("[SILK]--{}--Cleaning up silks...".format(filename))
+	
 	final_ear_masks = []
 	n = 1 #Counter
 	for r in range(number_of_ears):
 		ear = ear_masks[r]
 		
+		_,_,reed = cv2.split(ear)											#Split into it channel constituents
+		_,reed = cv2.threshold(reed, 0, 255, cv2.THRESH_OTSU)
+		reed = utility.cnctfill(reed)
+		ear[reed == 0] = 0
+
 		if args.debug is True:
 			cv2.namedWindow('[DEBUG][EAR] Ear Before Clean Up', cv2.WINDOW_NORMAL)
 			cv2.resizeWindow('[DEBUG][EAR] Ear Before Clean Up', 1000, 1000)
 			cv2.imshow('[DEBUG][EAR] Ear Before Clean Up', ear); cv2.waitKey(3000); cv2.destroyAllWindows() 
 
-		_,_,r = cv2.split(ear)											# Split into it channel constituents
-		_,r = cv2.threshold(r, 0, 255, cv2.THRESH_OTSU)
-		r = utility.cnctfill(r)
-		ear[r == 0] = 0
-		lab = cv2.cvtColor(ear, cv2.COLOR_BGR2LAB)
-		lab[r == 0] = 0
-		_,_,b_chnnl = cv2.split(lab)									# Split into it channel constituents
-
-		convexity = find_ears.calculate_convexity(b_chnnl)
-		log.info("[SILK]--{}--Ear #{}: Convexity: {}".format(filename, n, round(convexity, 3)))
-
-		if convexity < 0.87:
-			i = 1
-			conv_var = 0.04
-			i_var = 10	
-			log.warning("[SILK]--{}--Ear #{}: Convexity under 0.87 has triggered default ear clean-up module".format(filename, n))
-	
-		elif args.silk_cleanup is not None:
-			log.info("[SILK]--{}--Ear #{}: Convexity clean up module with custom settings")
-			conv_var = args.silk_cleanup[0]	
-			i_var = args.silk_cleanup[1]	
-		
-		if convexity < 0.87 or args.silk_cleanup is not None:
-			
+		if args.silk_cleanup != "None" and args.silk_cleanup != "":
+			log.info("[SILK]--{}--Cleaning up silks iwth custom settings".format(filename))
 			delta_conv = 0.001
-			log.info("[SILK]--{}--Ear #{}: Min delta convexity: {}, Max interations: {}".format(filename, n, round(conv_var, 3), i_var))
-			
+			conv_var = float(args.silk_cleanup[0])
+			i_var = float(args.silk_cleanup[1])
+			i = 1
+
+			_,_,r = cv2.split(ear)											# Split into it channel constituents
+			_,r = cv2.threshold(r, 0, 255, cv2.THRESH_OTSU)
+			r = utility.cnctfill(r)
+			ear[r == 0] = 0
+			lab = cv2.cvtColor(ear, cv2.COLOR_BGR2LAB)
+			lab[r == 0] = 0
+			_,_,b_chnnl = cv2.split(lab)									# Split into it channel constituents
+
+			convexity = find_ears.calculate_convexity(b_chnnl)
+
+			log.info("[SILK]--{}--Ear #{}: Min delta convexity: {}, Max interations: {}".format(filename, n, conv_var, 3, i_var))
+						
 			while delta_conv < conv_var  and i <= i_var:
 				b_chnnl = cv2.morphologyEx(b_chnnl, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (2+i,2+i)    ), iterations=1+i) #Open to get rid of the noise
 				convexity2 = find_ears.calculate_convexity(b_chnnl)
 				delta_conv = convexity2-convexity
 				log.info("[SILK]--{}--Ear #{}: Convexity: {}, delta convexity: {}, iteration: {}".format(filename, n, round(convexity2, 3), round(delta_conv, 3), i))
 				i = i + 1
-	
-		ear[b_chnnl == 0] = 0
+				
+			ear[b_chnnl == 0] = 0
+			log.info("[SILK]--{}--Silk clean-up module finished. Final convexity--{}".format(filename, round(convexity2, 3)))
+		elif args.silk_cleanup != "None":
+			_,_,r = cv2.split(ear)											# Split into it channel constituents
+			_,r = cv2.threshold(r, 0, 255, cv2.THRESH_OTSU)
+			r = utility.cnctfill(r)
+			ear[r == 0] = 0
+			lab = cv2.cvtColor(ear, cv2.COLOR_BGR2LAB)
+			lab[r == 0] = 0
+			_,_,b_chnnl = cv2.split(lab)									# Split into it channel constituents
+
+			convexity = find_ears.calculate_convexity(b_chnnl)
+			
+			default_silk_convexity = 0.87
+			log.info("[SILK]--{}--Silk clean-up module turned on with default silk convexity threshold of {}".format(filename, default_silk_convexity))
+				
+			if convexity < default_silk_convexity:
+				log.warning("[SILK]--{}--Ear #{}: Convexity under {} has triggered default ear clean-up module".format(filename, n, default_silk_convexity))
+				conv_var = 0.04
+				i_var = 10
+				i = 1
+				delta_conv = 0.001
+				log.info("[SILK]--{}--Ear #{}: Min delta convexity: {}, Max interations: {}".format(filename, n, conv_var, 3, i_var))
+				while delta_conv < conv_var  and i <= i_var:
+					b_chnnl = cv2.morphologyEx(b_chnnl, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (2+i,2+i)    ), iterations=1+i) #Open to get rid of the noise
+					convexity2 = find_ears.calculate_convexity(b_chnnl)
+					delta_conv = convexity2-convexity
+					log.info("[SILK]--{}--Ear #{}: Convexity: {}, delta convexity: {}, iteration: {}".format(filename, n, round(convexity2, 3), round(delta_conv, 3), i))
+					i = i + 1
+				ear[b_chnnl == 0] = 0
+				log.info("[SILK]--{}--Silk clean-up module finished. Final convexity--{}".format(filename, round(convexity2, 3)))
+			else:
+				log.info("[SILK]--{}--Silk convexity {} under threshold {}. Ear clean-up module turned off.".format(filename,convexity,default_silk_convexity))
+		else:
+			log.info("[SILK]--{}--Silk clean-up module turned off.".format(filename))			
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	##################################  Orient ears module  ##################################
@@ -646,9 +691,11 @@ def main():
 			if args.tip == []:
 				if otsu_s < 70:
 					chnnl=cv2.bitwise_not(h)
-					tip, otsu = cob_seg.otsu(chnnl)
+					_, otsu = cob_seg.otsu(chnnl)
+					tip_thresh_int = 1					
+					tip = cob_seg.manual(chnnl, otsu*tip_thresh_int)
 					log.warning("[EAR]--{}--Ear #{}: Detected white ear {}...thresholding ear tip with hue channel...".format(filename, n, otsu_s))
-					log.info("[EAR]--{}--Ear #{}: Segmenting ear tip with adaptive otsu approach on hue channel...".format(filename, n))
+					log.info("[EAR]--{}--Ear #{}: Segmenting ear tip with adaptive otsu approach on hue channel at intensitiy of {}...score {}".format(filename, n, tip_thresh_int, (otsu*tip_thresh_int)))
 					log.info("[EAR]--{}--Ear #{}: Otsu found {} threshold".format(filename, n, otsu))
 					tip = cv2.bitwise_not(tip) #invert
 					if args.debug is True:
@@ -656,37 +703,38 @@ def main():
 						cv2.resizeWindow('[DEBUG][EAR] Tip Thresholding', 1000, 1000)
 						cv2.imshow('[DEBUG][EAR] Tip Thresholding', tip); cv2.waitKey(3000); cv2.destroyAllWindows() 
 
-					tip_percent = 50
+					tip_percent = 35
 					dialate = 1
-					extent = 3
-					tip = cob_seg.top_modifier(ear, tip, tip_percent, dialate, extent, args.debug)	
-					tip_test = cob_seg.top_modifier(ear, red_tip, tip_percent, dialate, extent, False)
-					log.info("[EAR]--{}--Ear #{}: processing tip with {} tip percent, {} dialate, and {} extent".format(filename, n, tip_percent, dialate, extent))				
+					tip = cob_seg.top_modifier(ear, tip, tip_percent, dialate, args.debug)	
+					tip_test = cob_seg.top_modifier(ear, red_tip, tip_percent, dialate,False)
+					log.info("[EAR]--{}--Ear #{}: processing tip with {} tip percent, {} dialate".format(filename, n, tip_percent, dialate))				
 
 				else:
 					chnnl = s.copy()
-					_, otsu = cob_seg.otsu(chnnl)					
-					tip = cob_seg.manual(chnnl, otsu*0.8)
-					log.info("[EAR]--{}--Ear #{}: Segmenting ear tip with adaptive otsu approach on saturation channel...".format(filename, n))
+					_, otsu = cob_seg.otsu(chnnl)
+					tip_thresh_int = 1.4					
+					tip = cob_seg.manual(chnnl, otsu*tip_thresh_int)
+					log.info("[EAR]--{}--Ear #{}: Segmenting ear tip with adaptive otsu approach on saturation channel at intensitiy of {}...score {}".format(filename, n, tip_thresh_int, otsu*tip_thresh_int))
 					log.info("[EAR]--{}--Ear #{}: Otsu found {} threshold".format(filename, n, otsu))
 					tip = cv2.bitwise_not(tip) #invert			
 					if args.debug is True:
 						cv2.namedWindow('[DEBUG][EAR] Tip Thresholding', cv2.WINDOW_NORMAL)
 						cv2.resizeWindow('[DEBUG][EAR] Tip Thresholding', 1000, 1000)
 						cv2.imshow('[DEBUG][EAR] Tip Thresholding', tip); cv2.waitKey(3000); cv2.destroyAllWindows() 
-					tip_percent = 50
+					tip_percent = 35
 					dialate = 1
-					extent = 0
-					tip = cob_seg.top_modifier(ear, tip, tip_percent, dialate, extent, args.debug)	
-					tip_test = cob_seg.top_modifier(ear, red_tip, tip_percent, dialate, extent, False)
-					log.info("[EAR]--{}--Ear #{}: processing tip with {} tip percent, {} dialate, and {} extent".format(filename, n, tip_percent, dialate, extent))	
+					tip = cob_seg.top_modifier(ear, tip, tip_percent, dialate, args.debug)	
+					tip_test = cob_seg.top_modifier(ear, red_tip, tip_percent, dialate, False)
+					log.info("[EAR]--{}--Ear #{}: processing tip with {} tip percent, {} dialate".format(filename, n, tip_percent, dialate))	
 			else:
 				if args.tip[0] == 'h':
 					chnnl=cv2.bitwise_not(h)
-				else:
+				elif args.tip[0] == 's':
 					chnnl = s.copy()
-				tip = cob_seg.manual(chnnl, args.tip[1])
-				log.info("[EAR]--{}--Ear #{}: Segmenting ear tip with custom thresholding in {} channel at intensitiy of {}...".format(filename, n, args.tip[0], args.tip[1]))
+				_, otsu = cob_seg.otsu(chnnl)
+				tip_thresh_int = float(args.tip[1])
+				tip = cob_seg.manual(chnnl, otsu*tip_thresh_int)
+				log.info("[EAR]--{}--Ear #{}: Segmenting ear tip with custom thresholding in {} channel at intensitiy of {}...score {}".format(filename, n, args.tip[0], args.tip[1], (otsu*tip_thresh_int)))
 				tip = cv2.bitwise_not(tip) #invert
 				if args.debug is True:
 					cv2.namedWindow('[DEBUG][EAR] Tip Thresholding', cv2.WINDOW_NORMAL)
@@ -694,10 +742,9 @@ def main():
 					cv2.imshow('[DEBUG][EAR] Tip Thresholding', tip); cv2.waitKey(3000); cv2.destroyAllWindows() 
 				tip_percent = args.tip[2]
 				dialate = args.tip[3]
-				extent = args.tip[4]
-				tip = cob_seg.top_modifier(ear, tip, tip_percent, dialate, extent, args.debug)	
-				tip_test = cob_seg.top_modifier(ear, red_tip, tip_percent, dialate, extent, False)
-				log.info("[EAR]--{}--Ear #{}: processing tip with custom settings: {} tip percent, {} dialate, and {} extent".format(filename, n, tip_percent, dialate, extent))	
+				tip = cob_seg.top_modifier(ear, tip, tip_percent, dialate, args.debug)	
+				tip_test = cob_seg.top_modifier(ear, red_tip, 50, dialate, False)
+				log.info("[EAR]--{}--Ear #{}: processing tip with custom settings: {} tip percent, {} dialate".format(filename, n, tip_percent, dialate))	
 
 		else:
 			log.info("[EAR]--{}--Ear #{}: Ear tip segmentation turned off".format(filename, n))
@@ -707,9 +754,11 @@ def main():
 			if args.bottom == []:
 				if otsu_s < 70:
 					chnnl=cv2.bitwise_not(h)
-					bottom, otsu = cob_seg.otsu(chnnl)
+					_, otsu = cob_seg.otsu(chnnl)
+					bottom_thresh_int = 1
+					bottom = cob_seg.manual(chnnl, otsu*bottom_thresh_int)
 					log.warning("[EAR]--{}--Ear #{}: Detected white ear {}...thresholding ear bottom with hue channel...".format(filename, n, otsu_s))
-					log.info("[EAR]--{}--Ear #{}: Segmenting ear bottom with adaptive otsu approach on hue channel...".format(filename, n))
+					log.info("[EAR]--{}--Ear #{}: Segmenting ear bottom with adaptive otsu approach on hue channel with default intensity {}...score {}".format(filename, n, bottom_thresh_int, (otsu*bottom_thresh_int)))
 					log.info("[EAR]--{}--Ear #{}: Otsu found {} threshold".format(filename, n, otsu))
 
 					bottom = cv2.bitwise_not(bottom) #invert
@@ -718,17 +767,17 @@ def main():
 						cv2.resizeWindow('[DEBUG][EAR] bottom Thresholding', 1000, 1000)
 						cv2.imshow('[DEBUG][EAR] bottom Thresholding', bottom); cv2.waitKey(3000); cv2.destroyAllWindows() 
 
-					bottom_percent = 80
+					bottom_percent = 85
 					dialate = 1
-					extent = 5
-					bottom = cob_seg.bottom_modifier(ear, bottom, bottom_percent, dialate, extent, args.debug)
-					bottom_test = cob_seg.bottom_modifier(ear, red_bottom, bottom_percent, dialate, extent, False)
-					log.info("[EAR]--{}--Ear #{}: processing bottom with {} bottom percent, {} dialate, and {} extent".format(filename, n, bottom_percent, dialate, extent))
+					bottom = cob_seg.bottom_modifier(ear, bottom, bottom_percent, dialate, args.debug)
+					bottom_test = cob_seg.bottom_modifier(ear, red_bottom, bottom_percent, dialate, False)
+					log.info("[EAR]--{}--Ear #{}: processing bottom with {} bottom percent, {} dialate".format(filename, n, bottom_percent, dialate))
 				else:
 					chnnl = s.copy()
-					_, otsu = cob_seg.otsu(chnnl)					
-					bottom = cob_seg.manual(chnnl, otsu*0.8)
-					log.info("[EAR]--{}--Ear #{}: Segmenting ear bottom with adaptive otsu approach on saturation channel...".format(filename, n))
+					_, otsu = cob_seg.otsu(chnnl)
+					bottom_thresh_int = 1.4
+					bottom = cob_seg.manual(chnnl, otsu*bottom_thresh_int)
+					log.info("[EAR]--{}--Ear #{}: Segmenting ear bottom with adaptive otsu approach on saturation channel with default intensity {}...score {}".format(filename, n, bottom_thresh_int, (otsu*bottom_thresh_int)))
 					log.info("[EAR]--{}--Ear #{}: Otsu found {} threshold".format(filename, n, otsu))
 					bottom = cv2.bitwise_not(bottom) #invert
 					if args.debug is True:
@@ -736,19 +785,20 @@ def main():
 						cv2.resizeWindow('[DEBUG][EAR] bottom Thresholding', 1000, 1000)
 						cv2.imshow('[DEBUG][EAR] bottom Thresholding', bottom); cv2.waitKey(3000); cv2.destroyAllWindows() 
 
-					bottom_percent = 80
+					bottom_percent = 85
 					dialate = 1
-					extent = 0
-					bottom = cob_seg.bottom_modifier(ear, bottom, bottom_percent, dialate, extent, args.debug)	
-					bottom_test = cob_seg.bottom_modifier(ear, red_bottom, bottom_percent, dialate, extent, False)
-					log.info("[EAR]--{}--Ear #{}: processing bottom with {} bottom percent, {} dialate, and {} extent".format(filename, n, bottom_percent, dialate, extent))
+					bottom = cob_seg.bottom_modifier(ear, bottom, bottom_percent, dialate, args.debug)	
+					bottom_test = cob_seg.bottom_modifier(ear, red_bottom, bottom_percent, dialate, False)
+					log.info("[EAR]--{}--Ear #{}: processing bottom with {} bottom percent, {} dialate,".format(filename, n, bottom_percent, dialate))
 			else:
 				if args.bottom[0] == 'h':
 					chnnl=cv2.bitwise_not(h)
-				else:
+				elif args.bottom[0] == 's':
 					chnnl = s.copy()
-				bottom = cob_seg.manual(chnnl, args.bottom[1])
-				log.info("[EAR]--{}--Ear #{}: Segmenting ear bottom with custom thresholding in {} channel at intensitiy of {}...".format(filename, n, args.bottom[0], args.bottom[1]))
+				_, otsu = cob_seg.otsu(chnnl)
+				bottom_thresh_int = float(args.bottom[1])
+				bottom = cob_seg.manual(chnnl, otsu*bottom_thresh_int)
+				log.info("[EAR]--{}--Ear #{}: Segmenting ear bottom with custom thresholding in {} channel at intensitiy of {}...score {}".format(filename, n, args.bottom[0], args.bottom[1], (otsu*bottom_thresh_int)))
 				bottom = cv2.bitwise_not(bottom) #invert
 				if args.debug is True:
 					cv2.namedWindow('[DEBUG][EAR] bottom Thresholding', cv2.WINDOW_NORMAL)
@@ -757,10 +807,9 @@ def main():
 
 				bottom_percent = args.bottom[2]
 				dialate = args.bottom[3]
-				extent = args.bottom[4]
-				bottom = cob_seg.bottom_modifier(ear, bottom, bottom_percent, dialate, extent, args.debug)	
-				bottom_test = cob_seg.bottom_modifier(ear, red_bottom, bottom_percent, dialate, extent, False)
-				log.info("[EAR]--{}--Ear #{}: Processing bottom with custom settings: {} bottom percent, {} dialate, and {} extent".format(filename, n, bottom_percent, dialate, extent))					
+				bottom = cob_seg.bottom_modifier(ear, bottom, bottom_percent, dialate, args.debug)	
+				bottom_test = cob_seg.bottom_modifier(ear, red_bottom, 80, dialate, False)
+				log.info("[EAR]--{}--Ear #{}: Processing bottom with custom settings: {} bottom percent, {} dialate".format(filename, n, bottom_percent, dialate))					
 		else:
 			log.info("[EAR]--{}--Ear #{}: Ear bottom segmentation turned off".format(filename, n))
 

@@ -591,10 +591,10 @@ def thresh(img, channel, threshold, inv, debug):
         channel = b_chnl
 
     if debug is True:
-        cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
-        cv2.resizeWindow('Pixels Per Metric: FOUND', 1000, 1000)
-        cv2.imshow('Pixels Per Metric: FOUND', channel); cv2.waitKey(3000); cv2.destroyAllWindows()
-        plt.hist(channel.ravel(),256,[0,256]); plt.show()
+        cv2.namedWindow('[DEBUG] [EARS] Channel for Thresholding', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('[DEBUG] [EARS] Channel for Thresholding', 1000, 1000)
+        cv2.imshow('[DEBUG] [EARS] Channel for Thresholding', channel); cv2.waitKey(3000); cv2.destroyAllWindows()
+        #plt.hist(channel.ravel(),256,[0,256]); plt.show()
 
     if threshold == 'otsu':
         otsu,_ = cv2.threshold(channel, 0, 255, cv2.THRESH_OTSU)
@@ -608,8 +608,8 @@ def thresh(img, channel, threshold, inv, debug):
         bkgrnd=cv2.bitwise_not(bkgrnd)
 
     if debug is True:
-        cv2.namedWindow('Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
-        cv2.resizeWindow('Pixels Per Metric: FOUND', 1000, 1000)
-        cv2.imshow('Pixels Per Metric: FOUND', bkgrnd); cv2.waitKey(3000); cv2.destroyAllWindows()
+        cv2.namedWindow('[DEBUG] [EARS] Channel for Thresholding', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('[DEBUG] [EARS] Channel for Thresholding', 1000, 1000)
+        cv2.imshow('[DEBUG] [EARS] Channel for Thresholding', bkgrnd); cv2.waitKey(3000); cv2.destroyAllWindows()
 
     return bkgrnd

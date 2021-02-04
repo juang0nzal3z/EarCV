@@ -45,7 +45,7 @@ def manual(chnnl, threshold):
 	return cob
 
 
-def top_modifier(ear, tip, tip_percent, dialate, extent, debug):
+def top_modifier(ear, tip, tip_percent, dialate, debug):
 	ymax = ear.shape[0]
 	_,_,red = cv2.split(ear)											#Split into it channel constituents
 	_,red = cv2.threshold(red, 0, 255, cv2.THRESH_OTSU)
@@ -57,23 +57,9 @@ def top_modifier(ear, tip, tip_percent, dialate, extent, debug):
 		cv2.namedWindow('[DEBUG][EAR] Tip Percent', cv2.WINDOW_NORMAL)
 		cv2.resizeWindow('[DEBUG][EAR] Tip Percent', 1000, 1000)
 		cv2.imshow('[DEBUG][EAR] Tip Percent', tip); cv2.waitKey(3000); cv2.destroyAllWindows()
-	
-	if extent != 0:
-		nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(tip, connectivity=8)
-		tip = np.zeros(tip.shape, np.uint8)	
-		if extent > len(stats):
-			extent = len(stats)
-		for i in range (1, extent):
-			tip[output == i] = 255
-			#print(i)
-
-	if debug is True:
-		cv2.namedWindow('[DEBUG][EAR] Tip Processed (extent)', cv2.WINDOW_NORMAL)
-		cv2.resizeWindow('[DEBUG][EAR] Tip Processed (extent)', 1000, 1000)
-		cv2.imshow('[DEBUG][EAR] Tip Processed (extent)', tip); cv2.waitKey(3000); cv2.destroyAllWindows()
 
 	#tip = cv2.morphologyEx(tip, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (int(dialate),int(dialate))), iterations=int(2))
-	tip = cv2.dilate(tip, cv2.getStructuringElement(cv2.MORPH_RECT, (int(dialate*4),int(dialate))), iterations=int(2))
+	tip = cv2.dilate(tip, cv2.getStructuringElement(cv2.MORPH_RECT, (int(dialate),int(dialate))), iterations=int(2))
 	
 	if debug is True:
 		cv2.namedWindow('[DEBUG][EAR] Tip Dialate', cv2.WINDOW_NORMAL)
@@ -81,20 +67,20 @@ def top_modifier(ear, tip, tip_percent, dialate, extent, debug):
 		cv2.imshow('[DEBUG][EAR] Tip Dialate', tip); cv2.waitKey(3000); cv2.destroyAllWindows()
 	
 	if cv2.countNonZero(tip) != 0:
-		tip = cv2.bitwise_not(tip)
-		tip = utility.max_cnct(tip)
-		tip = cv2.bitwise_not(tip)
-		tip[red == 0] = 0
-		tip = utility.max_cnct(tip)
+		tip2 = red.copy()
+		red[tip == 255] = 0
+		red = utility.cnctfill(red)
+		tip2[red == 255] = 0
+		tip = tip2.copy()
 
 		if debug is True:
 			cv2.namedWindow('[DEBUG][EAR] Tip Processed (after invert)', cv2.WINDOW_NORMAL)
 			cv2.resizeWindow('[DEBUG][EAR] Tip Processed (after invert)', 1000, 1000)
-			cv2.imshow('[DEBUG][EAR] Tip Processed (after invert)', tip); cv2.waitKey(3000); cv2.destroyAllWindows()
+			cv2.imshow('[DEBUG][EAR] Tip Processed (after invert)', tip2); cv2.waitKey(3000); cv2.destroyAllWindows()
 
 	return tip
 
-def bottom_modifier(ear, bottom, bottom_percent, dialate, extent, debug):
+def bottom_modifier(ear, bottom, bottom_percent, dialate, debug):
 	ymax = ear.shape[0]
 	_,_,red = cv2.split(ear)											#Split into it channel constituents
 	_,red = cv2.threshold(red, 0, 255, cv2.THRESH_OTSU)
@@ -107,38 +93,21 @@ def bottom_modifier(ear, bottom, bottom_percent, dialate, extent, debug):
 		cv2.resizeWindow('[DEBUG][EAR] Bottom Percent', 1000, 1000)
 		cv2.imshow('[DEBUG][EAR] Bottom Percent', bottom); cv2.waitKey(3000); cv2.destroyAllWindows()
 	
-
-	bottom = cv2.rotate(bottom, cv2.ROTATE_180)
-
-	if extent != 0:
-		nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(bottom, connectivity=8)
-		bottom = np.zeros(bottom.shape, np.uint8)	
-		if extent > len(stats):
-			extent = len(stats)
-		for i in range (1, extent):
-			bottom[output == i] = 255
-			#print(i)
-	
-	bottom = cv2.rotate(bottom, cv2.ROTATE_180)
+	bottom = cv2.dilate(bottom, cv2.getStructuringElement(cv2.MORPH_RECT, (int(dialate),int(dialate))), iterations=int(2))
 
 	if debug is True:
 		cv2.namedWindow('[DEBUG][EAR] Bottom Dialate', cv2.WINDOW_NORMAL)
 		cv2.resizeWindow('[DEBUG][EAR] Bottom Dialate', 1000, 1000)
 		cv2.imshow('[DEBUG][EAR] Bottom Dialate', bottom); cv2.waitKey(3000); cv2.destroyAllWindows()
 
-	bottom = cv2.dilate(bottom, cv2.getStructuringElement(cv2.MORPH_RECT, (int(dialate*4),int(dialate))), iterations=int(2))
-
-	if debug is True:
-		cv2.namedWindow('[DEBUG][EAR] Bottom Processed (extent)', cv2.WINDOW_NORMAL)
-		cv2.resizeWindow('[DEBUG][EAR] Bottom Processed (extent)', 1000, 1000)
-		cv2.imshow('[DEBUG][EAR] Bottom Processed (extent)', bottom); cv2.waitKey(3000); cv2.destroyAllWindows()
 	
 	if cv2.countNonZero(bottom) != 0:
-		bottom = cv2.bitwise_not(bottom)
-		bottom = utility.max_cnct(bottom)
-		bottom = cv2.bitwise_not(bottom)
-		bottom[red == 0] = 0
-		bottom = utility.max_cnct(bottom)
+		bottom2 = red.copy()
+		red[bottom == 255] = 0
+		red = utility.cnctfill(red)
+		bottom2[red == 255] = 0
+		bottom = bottom2.copy()
+
 
 		if debug is True:
 			cv2.namedWindow('[DEBUG][EAR] Bottom Processed (after invert)', cv2.WINDOW_NORMAL)
