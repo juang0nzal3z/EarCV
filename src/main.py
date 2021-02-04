@@ -377,7 +377,6 @@ def main():
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	##################################  Clean-Up Module  ####################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-
 	if args.ear_cleanup != "None" and args.ear_cleanup != "":
 		log.info("[CLNUP]--{}--Ear clean-up module with custom settings".format(filename))
 
@@ -400,7 +399,7 @@ def main():
 			i = i+1
 		log.info("[CLNUP]--{}--Ear clean-up module finished. Final Area COV--{}".format(filename, cov))
 
-	elif args.color_checker != "None":
+	elif args.ear_cleanup != "None":
 		cov_default_tresh = 0.30
 		log.info("[CLNUP]--{}--Ear clean-up module turned on with default threshold of {}".format(filename, cov_default_tresh))
 
