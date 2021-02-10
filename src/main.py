@@ -411,20 +411,20 @@ def main():
 		else:
 			log.info("[CLNUP]--{}--Area Coefficent of Variance: {}".format(filename, cov))
 
-		if cov > cov_default_tresh:
-			log.warning("[CLNUP]--{}--COV {} is above default threshold {} has triggered default ear clean-up module".format(filename, cov, cov_default_tresh))
-			max_cov = 0.30
-			max_iterations = 10
-			i = 1
-			while cov > max_cov  and i <= max_iterations:
-				log.info("[CLNUP]--{}--Ear clean-up module: Iterate up to {} times or until area COV < {}. Current COV: {} and iteration {}".format(filename, max_iterations, max_cov, round(cov, 3), i))
-				mask = cv2.morphologyEx(filtered, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (i,i)), iterations=i)
-				filtered, ear_number = find_ears.filter(filename, mask, min_area, max_area, aspect_ratio, solidity)		# Run the filter module
-				cov = find_ears.calculate_area_cov(filtered, cov)																# Calculate area coeficient of variance			
-				i = i+1
-			log.info("[CLNUP]--{}--Ear clean-up module finished. Final Area COV--{}".format(filename, cov))
-		else:
-			log.info("[CLNUP]--{}--Area COV under threshold. Ear clean-up module turned off.".format(filename))
+			if cov > cov_default_tresh:
+				log.warning("[CLNUP]--{}--COV {} is above default threshold {} has triggered default ear clean-up module".format(filename, cov, cov_default_tresh))
+				max_cov = 0.30
+				max_iterations = 10
+				i = 1
+				while cov > max_cov  and i <= max_iterations:
+					log.info("[CLNUP]--{}--Ear clean-up module: Iterate up to {} times or until area COV < {}. Current COV: {} and iteration {}".format(filename, max_iterations, max_cov, round(cov, 3), i))
+					mask = cv2.morphologyEx(filtered, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (i,i)), iterations=i)
+					filtered, ear_number = find_ears.filter(filename, mask, min_area, max_area, aspect_ratio, solidity)		# Run the filter module
+					cov = find_ears.calculate_area_cov(filtered, cov)																# Calculate area coeficient of variance			
+					i = i+1
+				log.info("[CLNUP]--{}--Ear clean-up module finished. Final Area COV--{}".format(filename, cov))
+			else:
+				log.info("[CLNUP]--{}--Area COV under threshold. Ear clean-up module turned off.".format(filename))
 	else:
 		log.info("[CLNUP]--{}--Ear clean-up module turned off.".format(filename))
 
@@ -577,6 +577,31 @@ def main():
 				
 			ear[b_chnnl == 0] = 0
 			log.info("[SILK]--{}--Silk clean-up module finished. Final convexity--{}".format(filename, round(convexity2, 3)))
+			ear = cv2.copyMakeBorder(ear, 1000, 1000, 1000, 1000, cv2.BORDER_CONSTANT)
+			_,_,ear_binary = cv2.split(ear)											#Split into it channel constituents
+			_,ear_binary = cv2.threshold(ear_binary, 0, 255, cv2.THRESH_OTSU)
+			ear_binary = utility.cnctfill(ear_binary)
+			cnts = cv2.findContours(ear_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE); cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+			for c in cnts:
+				#Create ROI and find tip
+				rects = cv2.minAreaRect(c)
+				width_i = int(rects[1][0])
+				height_i = int(rects[1][1])
+				boxs = cv2.boxPoints(rects)
+				boxs = np.array(boxs, dtype="int")
+				src_pts_i = boxs.astype("float32")
+				dst_pts_i = np.array([[0, height_i-1],[0, 0],[width_i-1, 0],[width_i-1, height_i-1]], dtype="float32")
+				M_i = cv2.getPerspectiveTransform(src_pts_i, dst_pts_i)
+				ear = cv2.warpPerspective(ear, M_i, (width_i, height_i))
+				ear = cv2.copyMakeBorder(ear, 30, 30, 30, 30, cv2.BORDER_CONSTANT)
+				height_i = ear.shape[0]
+				width_i = ear.shape[1]
+				if height_i > width_i:
+					rat = round(width_i/height_i, 2)
+				else:
+					rat = round(height_i/width_i, 2)
+					ear = cv2.rotate(ear, cv2.ROTATE_90_COUNTERCLOCKWISE) 				#This rotates the image in case it is saved vertically
+
 		elif args.silk_cleanup != "None":
 			_,_,r = cv2.split(ear)											# Split into it channel constituents
 			_,r = cv2.threshold(r, 0, 255, cv2.THRESH_OTSU)
@@ -606,6 +631,32 @@ def main():
 					i = i + 1
 				ear[b_chnnl == 0] = 0
 				log.info("[SILK]--{}--Silk clean-up module finished. Final convexity--{}".format(filename, round(convexity2, 3)))
+
+				ear = cv2.copyMakeBorder(ear, 1000, 1000, 1000, 1000, cv2.BORDER_CONSTANT)
+				_,_,ear_binary = cv2.split(ear)											#Split into it channel constituents
+				_,ear_binary = cv2.threshold(ear_binary, 0, 255, cv2.THRESH_OTSU)
+				ear_binary = utility.cnctfill(ear_binary)
+				cnts = cv2.findContours(ear_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE); cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+				for c in cnts:
+					#Create ROI and find tip
+					rects = cv2.minAreaRect(c)
+					width_i = int(rects[1][0])
+					height_i = int(rects[1][1])
+					boxs = cv2.boxPoints(rects)
+					boxs = np.array(boxs, dtype="int")
+					src_pts_i = boxs.astype("float32")
+					dst_pts_i = np.array([[0, height_i-1],[0, 0],[width_i-1, 0],[width_i-1, height_i-1]], dtype="float32")
+					M_i = cv2.getPerspectiveTransform(src_pts_i, dst_pts_i)
+					ear = cv2.warpPerspective(ear, M_i, (width_i, height_i))
+					ear = cv2.copyMakeBorder(ear, 30, 30, 30, 30, cv2.BORDER_CONSTANT)
+					
+					height_i = ear.shape[0]
+					width_i = ear.shape[1]
+					if height_i > width_i:
+						rat = round(width_i/height_i, 2)
+					else:
+						rat = round(height_i/width_i, 2)
+						ear = cv2.rotate(ear, cv2.ROTATE_90_COUNTERCLOCKWISE) 				#This rotates the image in case it is saved vertically
 			else:
 				log.info("[SILK]--{}--Silk convexity {} under threshold {}. Ear clean-up module turned off.".format(filename,convexity,default_silk_convexity))
 		else:
