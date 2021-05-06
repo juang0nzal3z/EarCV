@@ -69,32 +69,12 @@ def qr_scan(qr_img, qr_window_size, overlap, debug):
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Scan entire image for QRcode
 	if qr_window_size is None:
 
-		cv2.namedWindow('[DEBUG] [QR] Scanning QRcode', cv2.WINDOW_NORMAL)
-		cv2.resizeWindow('[DEBUG] [QR] Scanning QRcode', 1000, 1000)
-		cv2.imshow('[DEBUG] [QR] Scanning QRcode', qr_img); cv2.waitKey(2000); cv2.destroyAllWindows()
-
 		qr_img = cv2.cvtColor(qr_img,cv2.COLOR_BGR2GRAY)
-
 		_,mask = cv2.threshold(qr_img, 0, 255, cv2.THRESH_OTSU)
-
 		#mask = cv2.inRange(qr_img,(0,0,0),(256,256,256)) ###mistake to hard code these
-
-		cv2.namedWindow('[DEBUG] [QR] Scanning QRcode', cv2.WINDOW_NORMAL)
-		cv2.resizeWindow('[DEBUG] [QR] Scanning QRcode', 1000, 1000)
-		cv2.imshow('[DEBUG] [QR] Scanning QRcode', mask); cv2.waitKey(2000); cv2.destroyAllWindows()
-
 		thresholded = cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
-
-		cv2.namedWindow('[DEBUG] [QR] Scanning QRcode', cv2.WINDOW_NORMAL)
-		cv2.resizeWindow('[DEBUG] [QR] Scanning QRcode', 1000, 1000)
-		cv2.imshow('[DEBUG] [QR] Scanning QRcode', thresholded); cv2.waitKey(2000); cv2.destroyAllWindows()
-
-		
 		inverted = thresholded
-
 		#inverted = 255-thresholded # black-in-white
-
-		
 		if debug is True:
 			cv2.namedWindow('[DEBUG] [QR] Scanning QRcode', cv2.WINDOW_NORMAL)
 			cv2.resizeWindow('[DEBUG] [QR] Scanning QRcode', 1000, 1000)
