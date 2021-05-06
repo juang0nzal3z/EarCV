@@ -17,6 +17,15 @@ import numpy as np
 import utility
 from pyzbar.pyzbar import decode
 
+
+#for the csv generator
+import traceback
+import os
+import re
+import string
+import csv
+
+
 def qr_scan(qr_img, qr_window_size, overlap, debug):
 	"""
 	Scans image for QR code and extracts information using pyzbar's decode function.
@@ -69,9 +78,16 @@ def qr_scan(qr_img, qr_window_size, overlap, debug):
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Scan entire image for QRcode
 	if qr_window_size is None:
 
-		qr_img = cv2.cvtColor(qr_img,cv2.COLOR_BGR2GRAY)
-		_,mask = cv2.threshold(qr_img, 0, 255, cv2.THRESH_OTSU)
+		#qr_img = cv2.cvtColor(qr_img,cv2.COLOR_BGR2GRAY)
+		#_,mask = cv2.threshold(qr_img, 0, 255, cv2.THRESH_OTSU)
 		#mask = cv2.inRange(qr_img,(0,0,0),(256,256,256)) ###mistake to hard code these
+
+		#try a few things here
+		b,g,r = cv2.split(qr_img)		
+		#qr_img = cv2.cvtColor(qr_img,cv2.COLOR_BGR2GRAY)
+		otsu,_ = cv2.threshold(g, 0, 255, cv2.THRESH_OTSU)
+		mask = cv2.threshold(g, int(otsu*1.30),256, cv2.THRESH_BINARY)[1]
+
 		thresholded = cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
 		inverted = thresholded
 		#inverted = 255-thresholded # black-in-white
@@ -105,8 +121,19 @@ def qr_scan(qr_img, qr_window_size, overlap, debug):
 				#mask = cv2.inRange(split,(0,0,0),(200,200,200))
 				#thresholded = cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
 				#inverted = 255-thresholded # black-in-white
-				split = cv2.cvtColor(split,cv2.COLOR_BGR2GRAY)
-				_,mask = cv2.threshold(split, 0, 255, cv2.THRESH_OTSU)
+				#~~~~
+				#split = cv2.cvtColor(split,cv2.COLOR_BGR2GRAY)
+				#_,mask = cv2.threshold(split, 0, 255, cv2.THRESH_OTSU)
+				
+				#try a few things here
+				b,g,r = cv2.split(split)		
+				#qr_img = cv2.cvtColor(qr_img,cv2.COLOR_BGR2GRAY)
+				otsu,_ = cv2.threshold(g, 0, 255, cv2.THRESH_OTSU)
+				mask = cv2.threshold(g, int(otsu*1.30),256, cv2.THRESH_BINARY)[1]
+				#print(thresh)
+
+
+
 				thresholded = cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)				
 				inverted = thresholded
 
@@ -154,5 +181,19 @@ if __name__ == "__main__":
 	
 	QRcodeType, QRcodeData, QRcodeRect, qr_count, qr_proof = qr_scan(img, qr_window_size, overlap, debug) # Run the qr.py module
 	
+	if QRcodeData == None:
+		print("[QR]--{}--No QRcode found".format(filename))	# Log
+		QRcodeData = "NA"
+	else:
+		print("[QR]--{}--Found {}: {} on the {}th iteration".format(filename, QRcodeType, QRcodeData, qr_count))	# Log
 
-	print("[QR]--{}--Found {}: {} on the {}th iteration".format(filename, QRcodeType, QRcodeData, qr_count))	# Log
+	csvname = './initial_qrscan' +'.csv'								# Create CSV and store barcode info
+	file_exists = os.path.isfile(csvname)
+	with open (csvname, 'a') as csvfile:
+		headers = ['Filename', 'QR Code']
+		writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n',fieldnames=headers)
+		if not file_exists:
+			writer.writeheader()
+		writer.writerow({'Filename': filename, 'QR Code': QRcodeData})
+
+	print("[QR]--{}--Saved filename and QRcode info to: ./initial_qrscan.csv".format(filename))

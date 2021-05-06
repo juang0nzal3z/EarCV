@@ -681,6 +681,13 @@ def main():
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	##################################  Save final ear masks  ################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+		#create transparency?
+		tmp = cv2.cvtColor(ear, cv2.COLOR_BGR2GRAY)
+		_,alpha = cv2.threshold(tmp,0,255,cv2.THRESH_BINARY)
+		b, g, r = cv2.split(ear)
+		rgba = [b,g,r, alpha]
+		ear_trans = cv2.merge(rgba,4)
+		
 		if args.no_save is False:
 			destin = "{}".format(out) + "02_Ear_ROIs/"
 			if not os.path.exists(destin):
@@ -691,7 +698,7 @@ def main():
 						raise			
 			destin = "{}02_Ear_ROIs/{}_ear_{}".format(out, filename, n) + ".png"
 			log.info("[EAR]--{}--Ear #{}: ROI saved to: {}".format(filename, n, destin))			
-			cv2.imwrite(destin, ear)
+			cv2.imwrite(destin, ear_trans)
 
 		if args.debug is True:
 			cv2.namedWindow('[DEBUG][EAR] After Silk, Clean Up, and Rot', cv2.WINDOW_NORMAL)
