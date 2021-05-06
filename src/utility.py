@@ -491,8 +491,8 @@ def build_montages(image_list, image_shape, montage_shape):
     cursor_pos = [0, 0]
     start_new_img = False
     for img in image_list:
-        if type(img).__module__ != np.__name__:
-            raise Exception('input of type {} is not a valid numpy array'.format(type(img)))
+        #if type(img).__module__ != np.__name__:
+        #    raise Exception('input of type {} is not a valid numpy array'.format(type(img)))
         start_new_img = False
         img = cv2.resize(img, image_shape)
         # draw image to black canvas

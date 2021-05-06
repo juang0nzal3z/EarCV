@@ -191,6 +191,8 @@ def main():
 		#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~QRCODE output~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~		
 		if QRcodeData is None:										
 			log.warning("[QR]--{}--Error: QR code not found".format(filename))	# Print error if no QRcode found
+			qr_proof = mask = np.zeros_like(img)
+			cv2.putText(qr_proof, "QR code not found", (int(500), int(500)), cv2.FONT_HERSHEY_SIMPLEX, 7, (0, 0, 255), 15)	
 		else:
 			log.info("[QR]--{}--Found {}: {} on the {}th iteration".format(filename, QRcodeType, QRcodeData, qr_count))	# Log
 			cv2.putText(qr_proof, "Found: {}".format(QRcodeData), (int(qr_proof.shape[0]/10), int(qr_proof.shape[1]/2)), cv2.FONT_HERSHEY_SIMPLEX,7, (222, 201, 59), 12)	# Print Text into proof
@@ -325,12 +327,12 @@ def main():
 			writer.writerow({headers[i]: csv_field[i] for i in range(26)})
 	
 		log.info("[COLOR]--{}--Saved features to: {}color_correction.csv".format(filename, out)) # Log
-
+		img = corrected
 
 		if args.debug is True:
-			cv2.namedWindow('[DEBUG] [PPM] Pixels Per Metric: FOUND', cv2.WINDOW_NORMAL)
-			cv2.resizeWindow('[DEBUG] [PPM] Pixels Per Metric: FOUND', 1000, 1000)
-			cv2.imshow('[DEBUG] [PPM] Pixels Per Metric: FOUND', img); cv2.waitKey(3000); cv2.destroyAllWindows()
+			cv2.namedWindow('[DEBUG] [CLR] Color correction: DONE', cv2.WINDOW_NORMAL)
+			cv2.resizeWindow('[DEBUG] [CLR] Color correction: DONE', 1000, 1000)
+			cv2.imshow('[DEBUG] [CLR] Color correction: DONE', img); cv2.waitKey(3000); cv2.destroyAllWindows()
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	##################################  Find ears module  ####################################
@@ -505,7 +507,7 @@ def main():
 	img_list.append(qr_proof)
 	img_list.append(color_proof)
 	img_list.append(ppm_proof)
-	
+
 	montages = utility.build_montages(img_list, (axis, int(axis*tall_ratio)), (3, 1))
 	dim = (ears_proof.shape[1], int(axis*tall_ratio))
 	montages[0] = cv2.resize(montages[0], dim, interpolation = cv2.INTER_AREA)
@@ -711,6 +713,10 @@ def main():
 		Ear_Area, Ear_Box_Area, Ear_Box_Length, Ear_Extreme_Length, Ear_Box_Width, newWidths, max_Width, MA, ma, perimeters, Convexity, Solidity, Convexity_polyDP, Taper, Taper_Convexity, Taper_Solidity, Taper_Convexity_polyDP, Widths_Sdev, Cents_Sdev, ear_proof, canvas, wid_proof = features.extract_feats(ear, PixelsPerMetric)
 		log.info('[EAR]--{}--Ear #{}: Done extracting basic morphological features'.format(filename, n))
 
+		moments = features.extract_moments(ear)
+		log.info('[EAR]--{}--Ear #{}: Done extracting image moments'.format(filename, n))
+
+
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	############################# Cob Segemntation Module ####################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -757,7 +763,7 @@ def main():
 					dialate = 1
 					tip = cob_seg.top_modifier(ear, tip, tip_percent, dialate, args.debug)	
 					tip_test = cob_seg.top_modifier(ear, red_tip, tip_percent, dialate,False)
-					log.info("[EAR]--{}--Ear #{}: processing tip with {} tip percent, {} dialate".format(filename, n, tip_percent, dialate))				
+					log.info("[EAR]--{}--Ear #{}: Processing tip with {} tip percent, {} dialate".format(filename, n, tip_percent, dialate))				
 
 				else:
 					chnnl = s.copy()
@@ -775,7 +781,7 @@ def main():
 					dialate = 1
 					tip = cob_seg.top_modifier(ear, tip, tip_percent, dialate, args.debug)	
 					tip_test = cob_seg.top_modifier(ear, red_tip, tip_percent, dialate, False)
-					log.info("[EAR]--{}--Ear #{}: processing tip with {} tip percent, {} dialate".format(filename, n, tip_percent, dialate))	
+					log.info("[EAR]--{}--Ear #{}: Processing tip with {} tip percent, {} dialate".format(filename, n, tip_percent, dialate))	
 			else:
 				if args.tip[0] == 'h':
 					chnnl=cv2.bitwise_not(h)
@@ -794,7 +800,7 @@ def main():
 				dialate = args.tip[3]
 				tip = cob_seg.top_modifier(ear, tip, tip_percent, dialate, args.debug)	
 				tip_test = cob_seg.top_modifier(ear, red_tip, 50, dialate, False)
-				log.info("[EAR]--{}--Ear #{}: processing tip with custom settings: {} tip percent, {} dialate".format(filename, n, tip_percent, dialate))	
+				log.info("[EAR]--{}--Ear #{}: Processing tip with custom settings: {} tip percent, {} dialate".format(filename, n, tip_percent, dialate))	
 
 		else:
 			log.info("[EAR]--{}--Ear #{}: Ear tip segmentation turned off".format(filename, n))
@@ -821,7 +827,7 @@ def main():
 					dialate = 1
 					bottom = cob_seg.bottom_modifier(ear, bottom, bottom_percent, dialate, args.debug)
 					bottom_test = cob_seg.bottom_modifier(ear, red_bottom, bottom_percent, dialate, False)
-					log.info("[EAR]--{}--Ear #{}: processing bottom with {} bottom percent, {} dialate".format(filename, n, bottom_percent, dialate))
+					log.info("[EAR]--{}--Ear #{}: Processing bottom with {} bottom percent, {} dialate".format(filename, n, bottom_percent, dialate))
 				else:
 					chnnl = s.copy()
 					_, otsu = cob_seg.otsu(chnnl)
@@ -839,7 +845,7 @@ def main():
 					dialate = 1
 					bottom = cob_seg.bottom_modifier(ear, bottom, bottom_percent, dialate, args.debug)	
 					bottom_test = cob_seg.bottom_modifier(ear, red_bottom, bottom_percent, dialate, False)
-					log.info("[EAR]--{}--Ear #{}: processing bottom with {} bottom percent, {} dialate,".format(filename, n, bottom_percent, dialate))
+					log.info("[EAR]--{}--Ear #{}: Processing bottom with {} bottom percent, {} dialate,".format(filename, n, bottom_percent, dialate))
 			else:
 				if args.bottom[0] == 'h':
 					chnnl=cv2.bitwise_not(h)
@@ -894,25 +900,31 @@ def main():
 	################################## KRN Module ###########################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 		if args.kernel_row_number is True:
-			log.info("[EAR]--{}--Ear #{}: KRN module turned on. Extracting number of kernel peaks and median kernel width...".format(filename, n))
-			diff_pre_consensus, diff_post_consensus, num_peaks, krn_proof = krn.krn(ear, args.debug)
-			
+			log.info("[EAR]--{}--Ear #{}: KRN module turned on. Extracting number of kernel peaks and kernel width...".format(filename, n))
+			global_peak_num, global_mean_diff, global_diff_sd, krn_proof = krn.krn(ear, args.debug)
+
 			if args.debug is True:
 				cv2.namedWindow('[DEBUG][EAR] Cob Segmentation', cv2.WINDOW_NORMAL)
 				cv2.resizeWindow('[DEBUG][EAR] Cob Segmentation', 1000, 1000)
 				cv2.imshow('[DEBUG][EAR] Cob Segmentation', krn_proof); cv2.waitKey(3000); cv2.destroyAllWindows() 
 
-			Number_of_Peaks = num_peaks
+			KRN_Boundaries = global_peak_num
+			KRN_Std_Dev = global_diff_sd
+
 			if PixelsPerMetric is not None:
-				diff_post_consensus = diff_post_consensus / (PixelsPerMetric)
-			Median_Kernel_Width = diff_post_consensus
-			log.info("[EAR]--{}--Ear #{}: Using median kernel width and radius to predict KRN...".format(filename, n))
-			inside, centa, areasec, areacirc, KRN = utility.circ((Ear_Box_Width/2), diff_post_consensus)
+				global_mean_diff = global_mean_diff / (PixelsPerMetric)
+
+			Mean_Kernel_Width = global_mean_diff
+
+			log.info("[EAR]--{}--Ear #{}: Using kernel width and radius to predict KRN...".format(filename, n))
+
+			inside_mean, centa_mean, areasec_mean, areacirc_mean, KRN = utility.circ((Ear_Box_Width/2), global_mean_diff)
 			log.info("[EAR]--{}--Ear #{}: KRN analysis done.".format(filename, n))
 		else:
 			KRN = None
-			Median_Kernel_Width = None
-			Number_of_Peaks = None
+			Mean_Kernel_Width = None
+			KRN_Boundaries = None
+			KRN_Std_Dev = None
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	################################## Grading Module ########################################
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -984,7 +996,7 @@ def main():
 				headers = ['Filename', 'Units', 'Ear Number', 'Ear_Area', 'Ear_Box_Area', 'Ear_Box_Length', 'Ear_Extreme_Length', 'Ear_Box_Width', 'Max_Width', 'MA_Ellipse', 'ma_Ellipse', 'Perimeter', 
 							'Convexity', 'Solidity', 'Convexity_polyDP', 'Taper', 'Taper_Convexity', 'Taper_Solidity', 'Taper_Convexity_polyDP', 
 							'Widths_Sdev', 'Curvature', 'Tip_Area', 'Bottom_Area', 'Krnl_Area', 'Kernel_Length', 'Krnl_Convexity', 'Tip_Fill', 
-							'Bottom_Fill', 'Krnl_Fill', 'KRN', 'Median_Kernel_Width', 'Number_of_Peaks', 'USDA_Grade_Len', 'USDA_Grade_Fill' ,'Blue', 'Red', 'Green', 'Hue', 'Sat', 'Vol', 'Light', 'A_chnnl', 'B_chnnl']  
+							'Bottom_Fill', 'Krnl_Fill', 'KRN_Pred', 'Mean_Kernel_Width', 'KRN_Boundaries', 'KRN_Std_Dev', 'USDA_Grade_Len', 'USDA_Grade_Fill' ,'Blue', 'Red', 'Green', 'Hue', 'Sat', 'Vol', 'Light', 'A_chnnl', 'B_chnnl']  
 
 
 				writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n',fieldnames=headers)
@@ -998,15 +1010,41 @@ def main():
 								 'Taper_Convexity': Taper_Convexity, 'Taper_Solidity': Taper_Solidity, 'Taper_Convexity_polyDP': Taper_Convexity_polyDP, 
 							     'Widths_Sdev': Widths_Sdev, 'Curvature': Cents_Sdev, 'Tip_Area': Tip_Area, 'Bottom_Area': Bottom_Area, 
 							     'Krnl_Area': Krnl_Area, 'Kernel_Length': Kernel_Length , 'Krnl_Convexity': Krnl_Convexity, 'Tip_Fill': Tip_Fill, 
-								 'Bottom_Fill': Bottom_Fill, 'Krnl_Fill': Krnl_Fill , 'KRN': KRN, 'Median_Kernel_Width': Median_Kernel_Width, 'Number_of_Peaks':Number_of_Peaks,
-								 'USDA_Grade_Len': USDA_Grade_Len, 'USDA_Grade_Fill': USDA_Grade_Fill, 'Blue': Blue , 'Red': Red , 'Green': Green , 'Hue': Hue, 'Sat': Sat,
+								 'Bottom_Fill': Bottom_Fill, 'Krnl_Fill': Krnl_Fill , 'KRN_Pred': KRN, 'KRN_Boundaries': KRN_Boundaries, 'Mean_Kernel_Width': Mean_Kernel_Width,
+								 'KRN_Std_Dev': KRN_Std_Dev, 'USDA_Grade_Len': USDA_Grade_Len, 'USDA_Grade_Fill': USDA_Grade_Fill, 'Blue': Blue , 'Red': Red , 'Green': Green , 'Hue': Hue, 'Sat': Sat,
 								 'Vol': Vol , 'Light': Light , 'A_chnnl': A_chnnl , 'B_chnnl': B_chnnl})
 
 			log.info("[EAR]--{}--Ear #{}: Saved features to: {}features.csv".format(filename, n, out))
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Create KRN CSV tp run XGBOOST
+		if args.no_save is False:			
+			csvname = out + 'krn_features' +'.csv'
+			file_exists = os.path.isfile(csvname)
+			with open (csvname, 'a') as csvfile:
+				headers = ['Filename', 'Units', 'Ear Number', 'Ear_Area', 'Ear_Extreme_Length', 'Max_Width', 'Solidity','Convexity_polyDP',
+							'Taper_Convexity_polyDP', 'Widths_Sdev', 'Krnl_Area', 'Krnl_Fill', 'KRN_Pred', 'KRN_Boundaries',
+							 'Mean_Kernel_Width', 'KRN_Std_Dev', 'm00','m10','m01','m20','m11','m02','m30','m21','m12','m03','mu20','mu11','mu02','mu30','mu21','mu12','mu03','nu20',
+							'nu11','nu02','nu30','nu21','nu12','nu03']
+
+
+				writer = csv.DictWriter(csvfile, delimiter=',', lineterminator='\n',fieldnames=headers)
+				if not file_exists:
+					writer.writeheader()  # file doesn't exist yet, write a header	
+
+
+				writer.writerow({'Filename': filename, 'Units': Units, 'Ear Number': n, 'Ear_Area': Ear_Area, 'Ear_Extreme_Length': Ear_Extreme_Length, 'Max_Width': max_Width,
+								 'Solidity': Solidity, 'Convexity_polyDP': Convexity_polyDP, 'Taper_Convexity_polyDP': Taper_Convexity_polyDP, 
+							     'Widths_Sdev': Widths_Sdev, 'Krnl_Area': Krnl_Area, 'Krnl_Fill': Krnl_Fill , 'KRN_Pred': KRN, 'KRN_Boundaries': KRN_Boundaries, 'Mean_Kernel_Width': Mean_Kernel_Width,
+								 'KRN_Std_Dev': KRN_Std_Dev, 'm00': moments['m00'],'m10': moments['m10'],'m01': moments['m01'],'m20': moments['m20'],'m11': moments['m11'],
+								 'm02': moments['m02'],'m30': moments['m30'],'m21': moments['m21'],'m12': moments['m12'],'m03': moments['m03'],'mu20': moments['mu20'],
+								 'mu11': moments['mu11'],'mu02': moments['mu02'],'mu30': moments['mu30'],'mu21': moments['mu21'],'mu12': moments['mu12'],'mu03': moments['mu03'],
+								 'nu20': moments['nu20'],'nu11': moments['nu11'],'nu02': moments['nu02'],'nu30': moments['nu30'],'nu21': moments['nu21'],'nu12': moments['nu12'],'nu03': moments['nu03']})
+
+			log.info("[EAR]--{}--Ear #{}: Saved kernel features to: {}krn_features.csv".format(filename, n, out))
+
 		n = n + 1
 	log.info("[EAR]--{}--Collected all ear features.".format(filename))		
-
-
 
 #def run():
 #    """Entry point for console_scripts"""

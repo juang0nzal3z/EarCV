@@ -68,9 +68,32 @@ def qr_scan(qr_img, qr_window_size, overlap, debug):
 	QRcodeType = QRcodeData = QRcodeRect = qr_proof =None
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Scan entire image for QRcode
 	if qr_window_size is None:
-		mask = cv2.inRange(qr_img,(0,0,0),(200,200,200))
+
+		cv2.namedWindow('[DEBUG] [QR] Scanning QRcode', cv2.WINDOW_NORMAL)
+		cv2.resizeWindow('[DEBUG] [QR] Scanning QRcode', 1000, 1000)
+		cv2.imshow('[DEBUG] [QR] Scanning QRcode', qr_img); cv2.waitKey(2000); cv2.destroyAllWindows()
+
+		qr_img = cv2.cvtColor(qr_img,cv2.COLOR_BGR2GRAY)
+
+		_,mask = cv2.threshold(qr_img, 0, 255, cv2.THRESH_OTSU)
+
+		#mask = cv2.inRange(qr_img,(0,0,0),(256,256,256)) ###mistake to hard code these
+
+		cv2.namedWindow('[DEBUG] [QR] Scanning QRcode', cv2.WINDOW_NORMAL)
+		cv2.resizeWindow('[DEBUG] [QR] Scanning QRcode', 1000, 1000)
+		cv2.imshow('[DEBUG] [QR] Scanning QRcode', mask); cv2.waitKey(2000); cv2.destroyAllWindows()
+
 		thresholded = cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
-		inverted = 255-thresholded # black-in-white
+
+		cv2.namedWindow('[DEBUG] [QR] Scanning QRcode', cv2.WINDOW_NORMAL)
+		cv2.resizeWindow('[DEBUG] [QR] Scanning QRcode', 1000, 1000)
+		cv2.imshow('[DEBUG] [QR] Scanning QRcode', thresholded); cv2.waitKey(2000); cv2.destroyAllWindows()
+
+		
+		inverted = thresholded
+
+		#inverted = 255-thresholded # black-in-white
+
 		
 		if debug is True:
 			cv2.namedWindow('[DEBUG] [QR] Scanning QRcode', cv2.WINDOW_NORMAL)
@@ -99,9 +122,13 @@ def qr_scan(qr_img, qr_window_size, overlap, debug):
 			for j in X_points:
 				split = qr_img[i:i+split_height, j:j+split_width]
 				qr_count += 1
-				mask = cv2.inRange(split,(0,0,0),(200,200,200))
-				thresholded = cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
-				inverted = 255-thresholded # black-in-white
+				#mask = cv2.inRange(split,(0,0,0),(200,200,200))
+				#thresholded = cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)
+				#inverted = 255-thresholded # black-in-white
+				split = cv2.cvtColor(split,cv2.COLOR_BGR2GRAY)
+				_,mask = cv2.threshold(split, 0, 255, cv2.THRESH_OTSU)
+				thresholded = cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR)				
+				inverted = thresholded
 
 				if debug is True:
 					cv2.namedWindow('[DEBUG] [QR] Scanning QRcode', cv2.WINDOW_NORMAL)

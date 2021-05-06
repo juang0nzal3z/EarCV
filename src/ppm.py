@@ -62,7 +62,8 @@ def ppm_square(img, pixelspermetric):
     mask = np.zeros_like(sqr)
     for c in cnts:
         area_sqr = cv2.contourArea(c)
-        if area_sqr > 500:
+        #if 30000 > area_sqr > 500:
+        if area_sqr > 500:    
             rects = cv2.minAreaRect(c)
             width_i = int(rects[1][0])
             height_i = int(rects[1][1])
@@ -79,6 +80,7 @@ def ppm_square(img, pixelspermetric):
         for cs in cnts:         
             ppm_proof =cv2.drawContours(ppm_proof, [cs], -1, (53, 57, 250), 5)
             areas = cv2.contourArea(cs)
+            print(areas)
             rects = cv2.minAreaRect(cs)
             boxs = cv2.boxPoints(rects)
             boxs = np.array(boxs, dtype="int")          

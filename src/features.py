@@ -203,7 +203,27 @@ def extract_feats(ear, PixelsPerMetric):
 
 	return	Ear_Area, Ear_Box_Area, Ear_Box_Length, Ear_Extreme_Length, Ear_Box_Width, newWidths, max_Width, MA, ma, perimeters, Convexity, Solidity, Convexity_polyDP, Taper, Taper_Convexity, Taper_Solidity, Taper_Convexity_polyDP, Widths_Sdev, Cents_Sdev, ear_proof, canvas, wid_proof
 
+
+def extract_moments(ear):
+	_,_,r = cv2.split(ear)											#Split into it channel constituents
+	_,r = cv2.threshold(r, 0, 255, cv2.THRESH_OTSU)
+	r = utility.cnctfill(r)
+	cntss = cv2.findContours(r, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+	cntss = cntss[0] if len(cntss) == 2 else cntss[1]
+	cntss = sorted(cntss, key=cv2.contourArea, reverse=False)[:len(cntss)]
+
+	for cs in cntss:
+		moments = cv2.moments(cs)
+		#print M
+
+	return	moments
+
+
 def krnl_feats(ear, tip, bottom, PixelsPerMetric):			
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	################################## KERNEL FEATS ##########################################
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
 	krnl_proof = ear.copy()
 	_,_,r = cv2.split(ear)											#Split into it channel constituents
 	_,r = cv2.threshold(r, 0, 255, cv2.THRESH_OTSU)
@@ -220,19 +240,11 @@ def krnl_feats(ear, tip, bottom, PixelsPerMetric):
 	uncob = utility.cnctfill(uncob)
 	krnl[uncob == 0] = 0
 
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-	################################## KERNEL FEATS ##########################################
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-
 	pixels = np.float32(krnl[uncob !=  0].reshape(-1, 3))
 			
 	Blue, Green, Red, Hue, Sat, Vol, Light, A_chnnl, B_chnnl = dominant_cols(krnl, pixels)
-
-
 	#frame_fr = np.zeros_like(krnl)
 	#frame_fr[uncob > 0] = [Blue, Red, Green]
-
-
 
 	Tip_Area = cv2.countNonZero(tip)
 	Bottom_Area = cv2.countNonZero(bottom)
